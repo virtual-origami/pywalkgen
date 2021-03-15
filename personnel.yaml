@@ -1,0 +1,66 @@
+---
+walk_generator:
+  version: "0.1"
+  property:
+    walk:
+      enable_collision: True
+      max_walk_speed: 12
+      walk_dimension: 2
+      sigmoid_attributes:
+        mid_point: 0
+        steepness: 0.5
+        min_angle: 45
+        max_angle: 135
+    positioning:
+        outliers:
+          x:
+            mean: 0
+            standard_deviation: 0.5
+            number_of_outlier: 100
+            sample_size: 100
+          y:
+            mean: 0
+            standard_deviation: 0.5
+            number_of_outlier: 100
+            sample_size: 100
+          z:
+            mean: 0
+            standard_deviation: 0.5
+            number_of_outlier: 100
+            sample_size: 100
+    motion_sensing:
+        outliers:
+          - x:
+              mean: 0
+              standard_deviation: 0.5
+          - y:
+              mean: 0
+              standard_deviation: 0.5
+          - z:
+              mean: 0
+              standard_deviation: 0.5
+  personnel:
+    - id: 1
+      height: 1.6
+      walk_boundary: 100
+      start_coordinates:
+        x: 0
+        y: 0
+        z: 0
+      pub_sub_name: "personnel_1"
+  amq:
+    broker:
+      address: "localhost"
+      port: 5672
+    credentials:
+      username: "admin"
+      password: "rabbit"
+    pub_sub:
+        - name: "personnel_1"
+          exchange: "vws_publish_exchange"
+          binding_keys:
+            - "telemetry"
+        - name: "vws_2"
+          exchange: "vws_publish_exchange"
+          binding_keys:
+            - "#"
