@@ -53,7 +53,7 @@ class WalkPatternGenerator:
                                                               level_shift=math.radians( walk_property_info["walk"]["sigmoid_attributes"]["max_angle"] ) )
 
                     self.eventloop = eventloop
-                    self.publisher = AMQ_Pub_Sub( eventloop=self.eventloop, config_file=config_file, pub_sub_name=person_info["pub_sub_name"], mode="pub" )
+                    self.publisher = AMQ_Pub_Sub( eventloop=self.eventloop, config_file=config_file, pub_sub_name=person_info["pub_sub_mapping"]["publisher"], mode="pub" )
 
                     self.x_pos_prev = self.x_pos
                     self.y_pos_prev = self.y_pos
@@ -187,119 +187,4 @@ class WalkPatternGenerator:
 
 
 
-if __name__ == '__main__':
-    def plot2d(x, y, title="", legend="", overwrite=True):
-        if not overwrite:
-            fig = plt.figure()
-            subplot1 = fig.add_subplot( 111 )
-            subplot1.title( title )
-            subplot1.plot( x, y, label=legend )
-        else:
-            plt.title( title )
-            plt.plot( x, y, label=legend )
 
-
-    def plot3d(x, y, z, title="", legend="", overwrite=False):
-        if not overwrite:
-            fig = plt.figure()
-            subplot1 = fig.add_subplot( 111, projection='3d' )
-            subplot1.title( title )
-            subplot1.plot( x, y, z, label=legend )
-        else:
-            plt.title( title )
-            plt.plot( x, y, label=legend )
-
-
-    async def walk_pattern_test(event_loop):
-        number_of_samples = 100
-
-        walker = WalkPatternGenerator( eventloop=event_loop, config_file="personnel.yaml", personnel_id=1 )
-        await walker.connect()
-
-        position_raw_x = numpy.zeros( number_of_samples )
-        position_raw_y = numpy.zeros( number_of_samples )
-        position_raw_z = numpy.zeros( number_of_samples )
-        position_raw_with_outlier_x = numpy.zeros( number_of_samples )
-        position_raw_with_outlier_y = numpy.zeros( number_of_samples )
-        position_raw_with_outlier_z = numpy.zeros( number_of_samples )
-
-        input_sample = numpy.zeros( number_of_samples )
-        for i in range( 1, number_of_samples ):
-            await walker.run_once( tdelta=0.7, binding_key="telemetry" )
-            states = walker.get_states()
-
-            # update states
-            position_raw_x[i] = states["x_ref_pos"]
-            position_raw_y[i] = states["y_ref_pos"]
-            position_raw_z[i] = states["z_ref_pos"]
-            position_raw_with_outlier_x[i] = states["x_outlier_pos"]
-            position_raw_with_outlier_y[i] = states["y_outlier_pos"]
-            position_raw_with_outlier_z[i] = states["z_outlier_pos"]
-            input_sample[i] = i
-
-        fig1 = plt.figure()
-        fig1plot1 = fig1.add_subplot( 311 )
-        fig1plot1.title.set_text( "Random Walk x-axis" )
-        fig1plot1.set_xlabel( "steps" )
-        fig1plot1.set_ylabel( "position" )
-        fig1plot1.plot( input_sample, position_raw_with_outlier_x,
-                        label="outlier", color="r", linestyle="-", marker="." )
-        fig1plot1.plot( input_sample, position_raw_x, label="actual",
-                        color="g", linestyle="--", marker="." )
-
-        fig1plot2 = fig1.add_subplot( 312 )
-        fig1plot2.title.set_text( "Random Walk y-axis" )
-        fig1plot2.set_xlabel( "steps" )
-        fig1plot2.set_ylabel( "position" )
-        fig1plot2.plot( input_sample, position_raw_with_outlier_y,
-                        label="outlier", color="r", linestyle="-", marker="." )
-        fig1plot2.plot( input_sample, position_raw_y, label="actual",
-                        color="g", linestyle="--", marker="." )
-
-        fig1plot3 = fig1.add_subplot( 313 )
-        fig1plot3.title.set_text( "Random Walk z-axis" )
-        fig1plot3.set_xlabel( "steps" )
-        fig1plot3.set_ylabel( "position" )
-        fig1plot3.plot( input_sample, position_raw_with_outlier_z,
-                        label="outlier", color="r", linestyle="-", marker="." )
-        fig1plot3.plot( input_sample, position_raw_z, label="actual",
-                        color="g", linestyle="--", marker="." )
-
-        fig2 = plt.figure()
-        fig2plot1 = fig2.add_subplot( 111, projection='3d' )
-        fig2plot1.title.set_text( "Random Walk 3D" )
-        fig2plot1.set_xlabel( "x position" )
-        fig2plot1.set_ylabel( "y position" )
-        fig2plot1.set_zlabel( "z position" )
-        fig2plot1.plot( position_raw_with_outlier_x, position_raw_with_outlier_y,
-                        position_raw_with_outlier_z, label="outlier", color="r", linestyle="--" )
-        fig2plot1.plot( position_raw_x, position_raw_y, position_raw_z,
-                        label="actual", color="g", linestyle="--" )
-
-        fig3 = plt.figure()
-        fig3plot1 = fig3.add_subplot( 111 )
-        fig3plot1.title.set_text( "Random Walk 2D" )
-        fig3plot1.set_xlabel( "x position" )
-        fig3plot1.set_ylabel( "y position" )
-        fig3plot1.plot( position_raw_with_outlier_x, position_raw_with_outlier_y,
-                        label="outlier", color="r", linestyle="--" )
-        fig3plot1.plot( position_raw_x, position_raw_y,
-                        label="actual", color="g", linestyle="--" )
-
-        plt.legend()
-        plt.show()
-
-
-    async def walk_forever(eventloop):
-        walker = WalkPatternGenerator( eventloop=eventloop, config_file="personnel.yaml", personnel_id=1 )
-        tag = PositioningTag( eventloop=eventloop, config_file="personnel.yaml", personnel_id=1 )
-        await tag.connect()
-        # await walker.connect()
-        while True:
-            # await walker.run_once( tdelta=0.7, binding_key="telemetry" )
-            reference = walker.update_once( tdelta=0.7 )
-            await tag.run_once( reference_position=reference, tdelta=0.7, binding_key="telemetry" )
-
-
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete( walk_forever( event_loop ) )

@@ -47,7 +47,9 @@ walk_generator:
         x: 0
         y: 0
         z: 0
-      pub_sub_name: "personnel_1"
+      pub_sub_mapping: 
+      	publisher: "personnel_1"
+      	subscriber: ""
   amq:
     broker:
       address: "localhost"
