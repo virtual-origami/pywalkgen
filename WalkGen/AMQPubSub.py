@@ -4,6 +4,9 @@ from aio_pika import connect_robust, Message, DeliveryMode, ExchangeType, Incomi
 from aio_pika import exceptions as aio_pika_exception
 import yaml
 import os
+import logging
+
+logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
 
 class AMQ_Pub_Sub:
@@ -138,12 +141,12 @@ if __name__ == "__main__":
 
 
     async def subtest():
-        pub = AMQ_Pub_Sub( eventloop=event_loop, config_file="personnel.yaml", pub_sub_name="personnel_1", mode="sub", app_callback=sub_app_callback )
+        pub = AMQ_Pub_Sub( eventloop=event_loop, config_file="../personnel.yaml", pub_sub_name="personnel_1", mode="sub", app_callback=sub_app_callback )
         await pub.connect()
 
     async def pubtest():
         event_loop = asyncio.get_event_loop()
-        pub = AMQ_Pub_Sub( eventloop=event_loop, config_file="personnel.yaml", pub_sub_name="personnel_1", mode="pub" )
+        pub = AMQ_Pub_Sub( eventloop=event_loop, config_file="../personnel.yaml", pub_sub_name="personnel_1", mode="pub" )
         await pub.connect()
         while True:
             await pub.publish( binding_key="telemetry", message_content="test message".encode() )

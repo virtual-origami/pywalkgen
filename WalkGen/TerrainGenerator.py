@@ -4,6 +4,7 @@ from perlin_noise import PerlinNoise
 from opensimplex import OpenSimplex
 from scipy import interpolate as interpolation
 import logging
+
 logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
 

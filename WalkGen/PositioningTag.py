@@ -4,8 +4,10 @@ import sys
 import traceback
 import yaml
 import logging, asyncio
-from OutlierGenerator import OutlierGenerator
-from AMQPubSub import AMQ_Pub_Sub
+from .OutlierGenerator import OutlierGenerator
+from .AMQPubSub import AMQ_Pub_Sub
+
+logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
 
 class PositioningTag:

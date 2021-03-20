@@ -1,7 +1,10 @@
 import math
 import numpy
 import matplotlib.pyplot as plt
-from Sigmoid import Sigmoid
+from .Sigmoid import Sigmoid
+import logging
+
+logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
 
 class WalkAngleGenerator:

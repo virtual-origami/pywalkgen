@@ -6,12 +6,10 @@ import traceback
 import yaml
 import random
 import time
-import matplotlib.pyplot as plt
-import numpy
 import math
 import logging, asyncio
-from AngleGenerator import WalkAngleGenerator
-from AMQPubSub import AMQ_Pub_Sub
+from .AngleGenerator import WalkAngleGenerator
+from .AMQPubSub import AMQ_Pub_Sub
 
 CONFIG_DIR = os.path.dirname( os.path.abspath( __file__ ) + "/configuration/" )
 CONFIG_FILES = dict( personnel="personnel.yaml" )

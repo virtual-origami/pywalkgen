@@ -1,6 +1,9 @@
 import math
 import matplotlib.pyplot as plt
 import numpy
+import logging
+
+logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
 
 class Sigmoid:

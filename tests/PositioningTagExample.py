@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy
-import logging, asyncio
-from WalkGenerator import WalkPatternGenerator
-from PositioningTag import PositioningTag
+import asyncio
+from WalkGen.WalkGenerator import WalkPatternGenerator
+from WalkGen.PositioningTag import PositioningTag
 
 ENABLE_PLOTTING = True
 

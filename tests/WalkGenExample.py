@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy
-import logging, asyncio
-from WalkGenerator import WalkPatternGenerator
+import asyncio
+from WalkGen.WalkGenerator import WalkPatternGenerator
 
 ENABLE_PLOTTING = True
 
