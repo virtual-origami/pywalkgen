@@ -1,0 +1,21 @@
+scene:
+  version: "0.1"
+  type: "2D"
+  id: 1
+  obstacles:
+  	- id: 1
+      description: ""
+	  type: "polygon"
+      points:
+        - [0,0]
+        - [0,200]
+        - [10,200]
+        - [10,0]
+  	- id: 2
+      description: ""
+	  type: "polygon"
+      points:
+        - [0,0]
+        - [0,200]
+        - [10,200]
+        - [10,0]
