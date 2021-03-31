@@ -1,5 +1,5 @@
 import math
-from WalkGen.Point import  Point
+from Raycast.Point import Point
 
 
 class Ray:
@@ -9,11 +9,11 @@ class Ray:
             self.angle = angle
             self.dir = Point( x=math.cos( math.radians( angle ) ), y=math.sin( math.radians( angle ) ) )
 
-    def cast(self, wall):
-        x1 = wall.a.x
-        y1 = wall.a.y
-        x2 = wall.b.x
-        y2 = wall.b.y
+    def cast(self, segment):
+        x1 = segment.a.x
+        y1 = segment.a.y
+        x2 = segment.b.x
+        y2 = segment.b.y
 
         x3 = self.pos.x
         y3 = self.pos.y
