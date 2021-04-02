@@ -1,7 +1,6 @@
----
 walk_generator:
   version: "0.1"
-  property:
+  attribute: &attribute
     walk:
       enable_collision: True
       max_walk_speed: 12
@@ -12,57 +11,48 @@ walk_generator:
         min_angle: 45
         max_angle: 135
     positioning:
-        outliers:
-          x:
-            mean: 0
-            standard_deviation: 0.5
-            number_of_outlier: 100
-            sample_size: 100
-          y:
-            mean: 0
-            standard_deviation: 0.5
-            number_of_outlier: 100
-            sample_size: 100
-          z:
-            mean: 0
-            standard_deviation: 0.5
-            number_of_outlier: 100
-            sample_size: 100
+      outliers:
+        x:
+          mean: 0
+          standard_deviation: 0.5
+          number_of_outlier: 100
+          sample_size: 100
+        y:
+          mean: 0
+          standard_deviation: 0.5
+          number_of_outlier: 100
+          sample_size: 100
+        z:
+          mean: 0
+          standard_deviation: 0.5
+          number_of_outlier: 100
+          sample_size: 100
     motion_sensing:
-        outliers:
-          - x:
-              mean: 0
-              standard_deviation: 0.5
-          - y:
-              mean: 0
-              standard_deviation: 0.5
-          - z:
-              mean: 0
-              standard_deviation: 0.5
-  personnel:
-    - id: 1
-      height: 1.6
-      walk_boundary: 100
-      start_coordinates:
-        x: 0
-        y: 0
-        z: 0
-      pub_sub_mapping: 
-      	publisher: "personnel_1"
-      	subscriber: ""
-  amq:
-    broker:
+      outliers:
+        - x: { mean: 0, standard_deviation: 0.5}
+        - y: { mean: 0, standard_deviation: 0.5}
+        - z: { mean: 0, standard_deviation: 0.5}
+    interval: 0.1
+  amq: # AMQP Broker Information
+    broker: &amq_connect_info
       address: "localhost"
       port: 5672
-    credentials:
+    credentials: &amq_credential
       username: "admin"
       password: "rabbit"
-    pub_sub:
-        - name: "personnel_1"
-          exchange: "vws_publish_exchange"
-          binding_keys:
-            - "telemetry"
-        - name: "vws_2"
-          exchange: "vws_publish_exchange"
-          binding_keys:
-            - "#"
+  pub_sub:
+    - pub_sub_1: &pub_sub_1
+        type: "amq"
+        broker: *amq_connect_info
+        credential: *amq_credential
+        exchange: "vws_publish_exchange"
+        binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
+          - "telemetry"
+  personnel:
+    - id: '1'
+      height: 1.6
+      walk_boundary: 100
+      attribute: *attribute
+      start_coordinates: { x: 0, y: 0, z: 0}
+      protocol: *pub_sub_1
+
