@@ -9,12 +9,10 @@ import asyncio
 from .AngleGenerator import WalkAngleGenerator
 from .AMQPubSub import AMQ_Pub_Sub
 
-logging.basicConfig(stream=sys.stdout,level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler('/tmp/walkgen.log')
 handler.setLevel(logging.ERROR)
-
 formatter = logging.Formatter('%(levelname)-8s-[%(filename)s:%(lineno)d]-%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)

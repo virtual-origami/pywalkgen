@@ -3,8 +3,13 @@ import matplotlib.pyplot as plt
 import numpy
 import logging
 
-logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('/tmp/walkgen.log')
+handler.setLevel(logging.ERROR)
+formatter = logging.Formatter('%(levelname)-8s-[%(filename)s:%(lineno)d]-%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 class Sigmoid:
     """Sigmoid function generator

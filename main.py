@@ -5,23 +5,20 @@ import os
 import sys
 import signal
 import functools
-
 import yaml
-
 from WalkGen.WalkGenerator import WalkPatternGenerator
 
-logging.basicConfig(stream=sys.stdout,level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler('/tmp/walkgen.log')
 handler.setLevel(logging.ERROR)
-
-asyncio_logger = logging.getLogger('asyncio')
-asyncio_logger.setLevel(logging.WARNING)
-
 formatter = logging.Formatter('%(levelname)-8s-[%(filename)s:%(lineno)d]-%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+
 
 is_sighup_received = False
 

@@ -4,8 +4,13 @@ import matplotlib.pyplot as plt
 from .Sigmoid import Sigmoid
 import logging
 
-logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('/tmp/walkgen.log')
+handler.setLevel(logging.ERROR)
+formatter = logging.Formatter('%(levelname)-8s-[%(filename)s:%(lineno)d]-%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 class WalkAngleGenerator:
     """Walk Angle Generator. This use Sigmoid function

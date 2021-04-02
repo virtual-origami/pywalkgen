@@ -1,18 +1,13 @@
-import sys, traceback
+import sys
 import asyncio
 from aio_pika import connect_robust, Message, DeliveryMode, ExchangeType, IncomingMessage
 from aio_pika import exceptions as aio_pika_exception
 import logging
 
-logging.basicConfig(stream=sys.stdout,level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-pika_logger = logging.getLogger('aio_pika')
-pika_logger.setLevel(logging.WARNING)
-
+logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler('/tmp/walkgen.log')
 handler.setLevel(logging.ERROR)
-
 formatter = logging.Formatter('%(levelname)-8s-[%(filename)s:%(lineno)d]-%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
