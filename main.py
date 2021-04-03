@@ -77,7 +77,7 @@ async def app(eventloop,config):
         # continuously monitor signal handle and update walker
         while not is_sighup_received:
             for each_walker in walkers_in_ws:
-                await each_walker.run_once(binding_key="telemetry")
+                await each_walker.run_once(binding_key="telemetry.walker")
 
         # If SIGHUP Occurs, Delete the instances
         for entry in walkers_in_ws:

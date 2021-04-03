@@ -70,7 +70,7 @@ class WalkPatternGenerator:
                 self.publisher = AMQ_Pub_Sub(
                     eventloop=self.eventloop,
                     config_file=config_file['protocol'],
-                    binding_suffix=".walker." + config_file['id']
+                    binding_suffix=self.id
                 )
             else:
                 raise AssertionError("Provide protocol (amq/mqtt) config")
@@ -78,8 +78,8 @@ class WalkPatternGenerator:
             logger.critical("unhandled exception",e)
             sys.exit(-1)
 
-    async def _publish(self,binding_key,msg):
-        await self.publisher.publish(binding_key=binding_key,message_content=msg)
+    async def _publish(self,msg):
+        await self.publisher.publish(message_content=msg)
 
     def _update3d(self,tdelta=-1):
         try:
@@ -151,7 +151,7 @@ class WalkPatternGenerator:
 
         # Publish
         if binding_key is not None:
-            await self._publish(binding_key=binding_key,msg=json.dumps(result).encode())
+            await self._publish(msg=json.dumps(result).encode())
 
         # sleep until its time for next sample
         if self.interval >= 0:

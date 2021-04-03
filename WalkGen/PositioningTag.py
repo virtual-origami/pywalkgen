@@ -78,8 +78,8 @@ class PositioningTag:
             logging.critical( repr( traceback.format_exception( exc_type, exc_value, exc_traceback ) ) )
             sys.exit()
 
-    async def _publish(self, binding_key, msg):
-        await self.publisher.publish( binding_key=binding_key, message_content=msg )
+    async def _publish(self, msg):
+        await self.publisher.publish( message_content=msg )
 
     def _update3d(self, reference_position):
         try:

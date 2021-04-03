@@ -47,7 +47,7 @@ walk_generator:
         credential: *amq_credential
         exchange: "vws_fublish_exchange"
         binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
-          - "telemetry"
+          - "telemetry.walker."
   personnel:
     - id: '1'
       height: 1.6
