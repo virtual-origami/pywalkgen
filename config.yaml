@@ -15,17 +15,17 @@ walk_generator:
         x:
           mean: 0
           standard_deviation: 0.5
-          number_of_outlier: 100
+          number_of_outlier: 20
           sample_size: 100
         y:
           mean: 0
           standard_deviation: 0.5
-          number_of_outlier: 100
+          number_of_outlier: 20
           sample_size: 100
         z:
           mean: 0
           standard_deviation: 0.5
-          number_of_outlier: 100
+          number_of_outlier: 20
           sample_size: 100
     motion_sensing:
       outliers:
@@ -45,7 +45,7 @@ walk_generator:
         type: "amq"
         broker: *amq_connect_info
         credential: *amq_credential
-        exchange: "vws_publish_exchange"
+        exchange: "vws_fublish_exchange"
         binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
           - "telemetry"
   personnel:
@@ -53,6 +53,6 @@ walk_generator:
       height: 1.6
       walk_boundary: 100
       attribute: *attribute
-      start_coordinates: { x: 0, y: 0, z: 0}
+      start_coordinates: { x: 80, y: 80, z: 0}
       protocol: *pub_sub_1
 

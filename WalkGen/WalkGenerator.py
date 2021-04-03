@@ -8,6 +8,7 @@ import logging
 import asyncio
 from .AngleGenerator import WalkAngleGenerator
 from .AMQPubSub import AMQ_Pub_Sub
+from .OutlierGenerator import OutlierGenerator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -23,6 +24,7 @@ class WalkPatternGenerator:
 
     def __init__(self,eventloop,config_file):
         try:
+            self.id = config_file["id"]
             self.x_pos = config_file["start_coordinates"]["x"]
             self.y_pos = config_file["start_coordinates"]["y"]
             self.z_pos = config_file["start_coordinates"]["z"]
@@ -35,6 +37,22 @@ class WalkPatternGenerator:
                                                      max_value=math.radians(config_file["attribute"]["walk"]["sigmoid_attributes"]["min_angle"]),
                                                      level_shift=math.radians(config_file["attribute"]["walk"]["sigmoid_attributes"]["max_angle"]))
 
+            outlier_config = config_file["attribute"]["positioning"]["outliers"]
+            self.outlier_gen = []
+            self.outlier_gen.append(OutlierGenerator(mean=outlier_config["x"]["mean"],
+                                                     standard_deviation=outlier_config["x"]["standard_deviation"],
+                                                     number_of_outliers=outlier_config["x"]["number_of_outlier"],
+                                                     sample_size=outlier_config["x"]["sample_size"]))
+
+            self.outlier_gen.append(OutlierGenerator(mean=outlier_config["y"]["mean"],
+                                                     standard_deviation=outlier_config["y"]["standard_deviation"],
+                                                     number_of_outliers=outlier_config["y"]["number_of_outlier"],
+                                                     sample_size=outlier_config["y"]["sample_size"]))
+
+            self.outlier_gen.append(OutlierGenerator(mean=outlier_config["z"]["mean"],
+                                                     standard_deviation=outlier_config["z"]["standard_deviation"],
+                                                     number_of_outliers=outlier_config["z"]["number_of_outlier"],
+                                                     sample_size=outlier_config["z"]["sample_size"]))
             self.x_pos_prev = self.x_pos
             self.y_pos_prev = self.y_pos
             self.z_pos_prev = self.z_pos
@@ -52,7 +70,7 @@ class WalkPatternGenerator:
                 self.publisher = AMQ_Pub_Sub(
                     eventloop=self.eventloop,
                     config_file=config_file['protocol'],
-                    binding_suffix=".walk." + config_file['id']
+                    binding_suffix=".walker." + config_file['id']
                 )
             else:
                 raise AssertionError("Provide protocol (amq/mqtt) config")
@@ -111,9 +129,14 @@ class WalkPatternGenerator:
 
             self.time_past = self.time_now
 
-            return {"x_ref_pos":self.x_pos,"y_ref_pos":self.y_pos,"z_ref_pos":self.z_pos}
+            x_uwb_pos = self.x_pos + self.outlier_gen[0].generate()
+            y_uwb_pos = self.y_pos + self.outlier_gen[1].generate()
+            z_uwb_pos = self.z_pos + self.outlier_gen[2].generate()
+
+            return {"id":self.id,"x_ref_pos":self.x_pos,"y_ref_pos":self.y_pos,"z_ref_pos":self.z_pos,
+                    "x_uwb_pos":x_uwb_pos,"y_uwb_pos":y_uwb_pos,"z_uwb_pos":z_uwb_pos}
         except Exception as e:
-            logger.critical("unhandled exception", e)
+            logger.critical("unhandled exception",e)
             sys.exit(-1)
 
     async def connect(self):

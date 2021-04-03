@@ -95,7 +95,7 @@ class AMQ_Pub_Sub:
                     priority=priority
                 )
                 await self.exchange.publish(message, routing_key=binding_key+self.binding_suffix)
-                logger.debug({'content': message_content,'routing_key':binding_key})
+                logger.debug({'content': message_content,'routing_key':binding_key+self.binding_suffix})
             else:
                 logger.critical("Binding key does not match. Failed to Publish")
         except aio_pika_exception.AMQPException as e:

@@ -40,8 +40,8 @@ async def walk_pattern_test(event_loop):
         z_outlier_pos = numpy.zeros( number_of_samples )
         input_sample = numpy.zeros( number_of_samples )
 
-    walker = WalkPatternGenerator( eventloop=event_loop, config_file="personnel.yaml", personnel_id=1 )
-    tag = PositioningTag( eventloop=event_loop, config_file="personnel.yaml", personnel_id=1 )
+    walker = WalkPatternGenerator( eventloop=event_loop, config_file="config.yaml", personnel_id=1 )
+    tag = PositioningTag( eventloop=event_loop, config_file="config.yaml", personnel_id=1 )
     await tag.connect()
 
     for i in range( 1, number_of_samples ):
@@ -114,8 +114,8 @@ async def walk_pattern_test(event_loop):
 
 
 async def walk_forever(eventloop):
-    walker = WalkPatternGenerator( eventloop=eventloop, config_file="personnel.yaml", personnel_id=1 )
-    tag = PositioningTag( eventloop=eventloop, config_file="personnel.yaml", personnel_id=1 )
+    walker = WalkPatternGenerator( eventloop=eventloop, config_file="config.yaml", personnel_id=1 )
+    tag = PositioningTag( eventloop=eventloop, config_file="config.yaml", personnel_id=1 )
     await tag.connect()
     while True:
         reference = walker.update_once( tdelta=0.7 )
