@@ -20,6 +20,10 @@ logger.addHandler(handler)
 
 
 # ========================================= WALK PATTERN GENERATOR ==================================================================
+def get_ms_timestamp():
+    return round(time.time() * 1000)
+
+
 class WalkPatternGenerator:
 
     def __init__(self,eventloop,config_file):
@@ -132,9 +136,9 @@ class WalkPatternGenerator:
             x_uwb_pos = self.x_pos + self.outlier_gen[0].generate()
             y_uwb_pos = self.y_pos + self.outlier_gen[1].generate()
             z_uwb_pos = self.z_pos + self.outlier_gen[2].generate()
-
+            timestamp_ms = get_ms_timestamp()
             return {"id":self.id,"x_ref_pos":self.x_pos,"y_ref_pos":self.y_pos,"z_ref_pos":self.z_pos,
-                    "x_uwb_pos":x_uwb_pos,"y_uwb_pos":y_uwb_pos,"z_uwb_pos":z_uwb_pos}
+                    "x_uwb_pos":x_uwb_pos,"y_uwb_pos":y_uwb_pos,"z_uwb_pos":z_uwb_pos,"timestamp":timestamp_ms}
         except Exception as e:
             logger.critical("unhandled exception",e)
             sys.exit(-1)
