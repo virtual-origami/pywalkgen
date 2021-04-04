@@ -3,7 +3,7 @@ walk_generator:
   attribute: &attribute
     walk:
       enable_collision: True
-      max_walk_speed: 12
+      max_walk_speed: 5
       walk_dimension: 2
       sigmoid_attributes:
         mid_point: 0
