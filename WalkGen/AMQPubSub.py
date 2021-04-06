@@ -5,7 +5,7 @@ from aio_pika import exceptions as aio_pika_exception
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 handler = logging.FileHandler('/tmp/walkgen.log')
 handler.setLevel(logging.ERROR)
 formatter = logging.Formatter('%(levelname)-8s-[%(filename)s:%(lineno)d]-%(message)s')
