@@ -8,7 +8,7 @@ import functools
 import yaml
 from WalkGen.WalkGenerator import WalkPatternGenerator
 
-logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
+logging.basicConfig(level=logging.WARNING,format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -17,8 +17,6 @@ handler.setLevel(logging.ERROR)
 formatter = logging.Formatter('%(levelname)-8s-[%(filename)s:%(lineno)d]-%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-
 
 is_sighup_received = False
 
@@ -44,7 +42,7 @@ async def app(eventloop,config):
     while True:
         # Read configuration
         try:
-            walk_config = read_config(config)
+            walk_config = read_config(yaml_file=config,rootkey='walk_generator')
         except Exception as e:
             logger.error(f'Error while reading configuration: {e}')
             break
@@ -87,12 +85,12 @@ async def app(eventloop,config):
         is_sighup_received = False
 
 
-def read_config(yaml_config_file):
+def read_config(yaml_file,rootkey):
     """Parse the given Configuration File"""
-    if os.path.exists(yaml_config_file):
-        with open(yaml_config_file,'r') as config_file:
+    if os.path.exists(yaml_file):
+        with open(yaml_file,'r') as config_file:
             yaml_as_dict = yaml.load(config_file,Loader=yaml.FullLoader)
-        return yaml_as_dict['walk_generator']
+        return yaml_as_dict[rootkey]
     else:
         raise FileNotFoundError
         logger.error('YAML Configuration File not Found.')

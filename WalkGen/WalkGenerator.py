@@ -9,6 +9,12 @@ import asyncio
 from .AngleGenerator import WalkAngleGenerator
 from .AMQPubSub import AMQ_Pub_Sub
 from .OutlierGenerator import OutlierGenerator
+from .IMU import IMU
+from Raycast.Obstacle import Obstacle
+from Raycast.Point import Point
+from Raycast.Particle import Particle
+from Raycast.StaticMap import StaticMap
+from Raycast.CollisionDetection import CollisionDetection
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -39,8 +45,15 @@ class WalkPatternGenerator:
             self.walk_angle_gen = WalkAngleGenerator(mid_point=config_file["attribute"]["walk"]["sigmoid_attributes"]["mid_point"],
                                                      steepness=config_file["attribute"]["walk"]["sigmoid_attributes"]["steepness"],
                                                      max_value=math.radians(config_file["attribute"]["walk"]["sigmoid_attributes"]["min_angle"]),
-                                                     level_shift=math.radians(config_file["attribute"]["walk"]["sigmoid_attributes"]["max_angle"]))
-
+                                                     level_shift=math.radians(config_file["attribute"]["walk"]["sigmoid_attributes"]["max_angle"]),
+                                                     walk_direction_factor=config_file["attribute"]["walk"]["direction_factor"],
+                                                     walk_angle_deviation_factor=config_file["attribute"]["walk"]["angle_deviation_factor"])
+            self.imu = IMU(config_file=config_file)
+            self.collision = CollisionDetection(scene=StaticMap(config_file=config_file["workspace"]),
+                                                particle=Particle(particle_id=config_file["id"],
+                                                                  x=config_file["start_coordinates"]["x"],
+                                                                  y=config_file["start_coordinates"]["y"]),
+                                                min_collision_distance=config_file["attribute"]["collision"]["distance"])
             outlier_config = config_file["attribute"]["positioning"]["outliers"]
             self.outlier_gen = []
             self.outlier_gen.append(OutlierGenerator(mean=outlier_config["x"]["mean"],
@@ -69,6 +82,8 @@ class WalkPatternGenerator:
             self.walk_angle = 0
             self.interval = config_file['attribute']['interval']
             self.eventloop = eventloop
+            self.distance_factor = config_file["attribute"]["walk"]["distance_factor"]
+            self.distance_in_sample_time = 0
 
             if self.protocol_type == "amq":
                 self.publisher = AMQ_Pub_Sub(
@@ -99,13 +114,19 @@ class WalkPatternGenerator:
             assert (timedelta >= 0),f"Time delta: {timedelta},  can't be negative"
 
             # calculate instantaneous velocity, based on step size calculated in previous iteration and take direction decision
-            self.walk_angle = self.walk_angle_gen.generate(self.walk_angle,self.net_step_size / timedelta)
-            # assert ((self.walk_angle >= 0) and (self.walk_angle <= 180)), f"Walk angle: {self.walk_angle} , out of range, range 0 to 180 (both inclusive)"
+            ranging = self.collision.static_obstacle_avoidance(walk_angle=self.walk_angle)
+            self.walk_angle = self.walk_angle_gen.get_walk_angle(angle=self.walk_angle,
+                                                                 ranging=ranging,
+                                                                 velocity=self.net_step_size / timedelta)
 
             # step size decision
-            distance_in_sample_time = self.max_walk_speed * timedelta
+            new_distance_in_sample_time = random.uniform(self.distance_in_sample_time,
+                                                         self.max_walk_speed * timedelta * 0.6134)
 
-            self.net_step_size = random.uniform(self.net_step_size,distance_in_sample_time * 0.682)
+            self.distance_in_sample_time = (self.distance_in_sample_time * (1 - self.distance_factor)) \
+                                           + (new_distance_in_sample_time * self.distance_factor)
+
+            self.net_step_size = random.uniform(self.net_step_size,self.distance_in_sample_time)
 
             # step length in each of the axis
             if self.walk_dimension == 1:
@@ -126,6 +147,11 @@ class WalkPatternGenerator:
             self.y_pos = self.y_pos_prev + self.y_step_length
             self.z_pos = self.z_pos_prev + self.z_step_length
 
+            # update particle's position
+            self.collision.update_particles(x=self.x_pos,y=self.y_pos)
+
+            heading = {'ref_heading':{'end':(self.x_pos,self.y_pos),'start':(self.x_pos_prev,self.y_pos_prev)}}
+
             # prepare for next iteration
             self.x_pos_prev = self.x_pos
             self.y_pos_prev = self.y_pos
@@ -136,9 +162,19 @@ class WalkPatternGenerator:
             x_uwb_pos = self.x_pos + self.outlier_gen[0].generate()
             y_uwb_pos = self.y_pos + self.outlier_gen[1].generate()
             z_uwb_pos = self.z_pos + self.outlier_gen[2].generate()
+
+            result = {"id":self.id,"x_ref_pos":self.x_pos,"y_ref_pos":self.y_pos,"z_ref_pos":self.z_pos,
+                      "x_uwb_pos":x_uwb_pos,"y_uwb_pos":y_uwb_pos,"z_uwb_pos":z_uwb_pos,
+                      'view':ranging}
+            result.update(heading)
+
+            imu_result = self.imu.update(cur_position=result,tdelta=tdelta)
+            result.update(imu_result)
+
             timestamp_ms = get_ms_timestamp()
-            return {"id":self.id,"x_ref_pos":self.x_pos,"y_ref_pos":self.y_pos,"z_ref_pos":self.z_pos,
-                    "x_uwb_pos":x_uwb_pos,"y_uwb_pos":y_uwb_pos,"z_uwb_pos":z_uwb_pos,"timestamp":timestamp_ms}
+            result.update({"timestamp":timestamp_ms})
+
+            return result
         except Exception as e:
             logger.critical("unhandled exception",e)
             sys.exit(-1)

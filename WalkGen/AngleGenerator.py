@@ -1,4 +1,6 @@
 import math
+import random
+
 import numpy
 import matplotlib.pyplot as plt
 from .Sigmoid import Sigmoid
@@ -12,11 +14,12 @@ formatter = logging.Formatter('%(levelname)-8s-[%(filename)s:%(lineno)d]-%(messa
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+
 class WalkAngleGenerator:
     """Walk Angle Generator. This use Sigmoid function
     """
 
-    def __init__(self, mid_point=0, steepness=0.5, max_value=1, level_shift=0):
+    def __init__(self,mid_point=0,steepness=0.5,max_value=1,level_shift=0,walk_direction_factor=0.341,walk_angle_deviation_factor=1):
         """Initializes Walk Angle generator
 
         Args:
@@ -25,10 +28,16 @@ class WalkAngleGenerator:
             max_value (int, optional): Maximum value of the Sigmoid function. Defaults to 1.
             level_shift (int, optional): Minimum value of the Sigmoid function. Defaults to 0.
         """
-        self.sigmoid = Sigmoid( mid_point=mid_point, steepness=steepness,
-                                max_value=max_value, level_shift=level_shift )
+        self.sigmoid = Sigmoid(mid_point=mid_point,
+                               steepness=steepness,
+                               max_value=max_value,
+                               level_shift=level_shift)
+        self.walk_direction_factor = walk_direction_factor
+        self.walk_angle = 0
+        self.max_angle_deviation = 0
+        self.walk_angle_deviation_factor = walk_angle_deviation_factor
 
-    def get_angle_deviation(self, velocity):
+    def get_max_angle_deviation(self,velocity):
         """Get max angle of deviation given velocity
 
         Args:
@@ -37,9 +46,10 @@ class WalkAngleGenerator:
         Returns:
             float: Maximum angle of deviation
         """
-        return self.sigmoid.generate( -1.0 * velocity )
+        self.max_angle_deviation = self.sigmoid.generate(-1.0 * velocity)
+        return self.max_angle_deviation
 
-    def generate(self, angle, velocity):
+    def get_walk_angle(self,angle,ranging,velocity):
         """Generates angle value for given velocity
 
         Args:
@@ -49,32 +59,37 @@ class WalkAngleGenerator:
         Returns:
             [type]: [description]
         """
-        one_standard_deviation = 0.341
-        return numpy.random.normal( loc=angle, scale=self.get_angle_deviation( velocity=velocity ) * one_standard_deviation )
 
+        max_angle_dev = self.get_max_angle_deviation(velocity=velocity)
+        new_walk_angle_list = []
+        angle_int = int(angle)
+        new_walk_angle = None
 
-if __name__ == '__main__':
-    def walk_angle_test():
-        mid_point = -2
-        steepness = 0.5
-        # angle_deviation_degrees = 10.0
-        # max_speed_mps = 40.0
+        for item in ranging:
+            if (angle - max_angle_dev) < item['angle'] <= (angle + max_angle_dev):
+                new_walk_angle_list.append(item)
 
-        walk_angle_gen = WalkAngleGenerator(
-            mid_point=mid_point, steepness=steepness, max_value=math.radians( 135 ), level_shift=math.radians( 45 ) )
+        for item in new_walk_angle_list:
+            if item['angle'] == angle_int:
+                new_walk_angle = numpy.random.normal(loc=angle,scale=max_angle_dev * self.walk_angle_deviation_factor) % 180.0
 
-        walk_angle_result = numpy.zeros( 40 )
-        velocity_in = numpy.zeros( 40 )
+                # selection_index = random.randint(0,len(new_walk_angle_list) - 1)
+                # new_walk_angle = new_walk_angle_list[selection_index]['angle']
 
-        prev_angle = 0.0
-        for i in range( 0, 40 ):
-            walk_angle_result[i] = math.degrees(
-                walk_angle_gen.generate( prev_angle, i * 1.0 ) )
-            prev_angle = 0  # math.radians(walk_angle_result[i])
-            velocity_in[i] = i
+        if new_walk_angle is None:
+            if len(new_walk_angle_list) > 0:
+                # method 1
+                max_dist = 0
+                max_angle = 0
+                for item in new_walk_angle_list:
+                    if max_dist < item['distance']:
+                        max_angle = item['angle']
+                        max_dist = item['distance']
+                new_walk_angle = numpy.random.normal(loc=max_angle,scale=max_angle_dev * self.walk_angle_deviation_factor) % 180.0
+            else:
+                new_walk_angle = -angle
 
-        plt.title( "Walk angle" )
-        plt.xlabel( "Velocity" )
-        plt.ylabel( "Angle in degrees" )
-        plt.plot( velocity_in, walk_angle_result )
-        plt.show()
+        self.walk_angle = ((self.walk_angle * (1 - self.walk_direction_factor)) +
+                           (new_walk_angle * self.walk_direction_factor)) % 180.0
+
+        return self.walk_angle
