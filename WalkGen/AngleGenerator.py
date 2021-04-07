@@ -1,6 +1,3 @@
-import math
-import random
-
 import numpy
 import matplotlib.pyplot as plt
 from .Sigmoid import Sigmoid
@@ -33,8 +30,8 @@ class WalkAngleGenerator:
                                max_value=max_value,
                                level_shift=level_shift)
         self.walk_direction_factor = walk_direction_factor
-        self.walk_angle = 0
-        self.max_angle_deviation = 0
+        self.walk_angle = 0.0
+        self.max_angle_deviation = 0.0
         self.walk_angle_deviation_factor = walk_angle_deviation_factor
 
     def get_max_angle_deviation(self,velocity):
@@ -54,42 +51,32 @@ class WalkAngleGenerator:
 
         Args:
             angle (float): maximum angle of deviation in radians
+            ranging
             velocity (float): velocity in meter per second
 
         Returns:
             [type]: [description]
         """
 
+        # get maximum deviation angle
         max_angle_dev = self.get_max_angle_deviation(velocity=velocity)
-        new_walk_angle_list = []
-        angle_int = int(angle)
-        new_walk_angle = None
-
+        is_in_collision_course = True
         for item in ranging:
-            if (angle - max_angle_dev) < item['angle'] <= (angle + max_angle_dev):
-                new_walk_angle_list.append(item)
+            if item['angle'] == self.walk_angle:
+                new_angle = int(numpy.random.normal(loc=angle,scale=max_angle_dev * self.walk_angle_deviation_factor))
+                new_angle = (new_angle * self.walk_direction_factor) + (self.walk_angle * (1 - self.walk_direction_factor))
+                self.walk_angle = int(new_angle)
+                is_in_collision_course = False
+                break
 
-        for item in new_walk_angle_list:
-            if item['angle'] == angle_int:
-                new_walk_angle = numpy.random.normal(loc=angle,scale=max_angle_dev * self.walk_angle_deviation_factor) % 180.0
+        if is_in_collision_course:
+            max_dist = 0
+            max_angle = 0
+            for item in ranging:
+                if item['distance'] > max_dist:
+                    max_angle = item['angle']
+                    max_dist = item['distance']
 
-                # selection_index = random.randint(0,len(new_walk_angle_list) - 1)
-                # new_walk_angle = new_walk_angle_list[selection_index]['angle']
+            self.walk_angle = max_angle
 
-        if new_walk_angle is None:
-            if len(new_walk_angle_list) > 0:
-                # method 1
-                max_dist = 0
-                max_angle = 0
-                for item in new_walk_angle_list:
-                    if max_dist < item['distance']:
-                        max_angle = item['angle']
-                        max_dist = item['distance']
-                new_walk_angle = numpy.random.normal(loc=max_angle,scale=max_angle_dev * self.walk_angle_deviation_factor) % 180.0
-            else:
-                new_walk_angle = -angle
-
-        self.walk_angle = ((self.walk_angle * (1 - self.walk_direction_factor)) +
-                           (new_walk_angle * self.walk_direction_factor)) % 180.0
-
-        return self.walk_angle
+        return self.walk_angle,is_in_collision_course

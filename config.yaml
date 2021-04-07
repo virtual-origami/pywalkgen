@@ -171,7 +171,7 @@ walk_generator:
   attribute: &attribute
     walk:
       enable_collision: True
-      max_walk_speed: 12
+      max_walk_speed: 10
       direction_factor: 0.05
       distance_factor: 0.7
       angle_deviation_factor: 2
@@ -222,8 +222,8 @@ walk_generator:
       orientation:
         initial: { roll: 0, pitch: 0, yaw: 0 }
     collision:
-      distance: 25
-    interval: 0.1 # 100Hz
+      distance: 5
+    interval: 0.01 # 100Hz
   amq: # AMQP Broker Information
     broker: &amq_connect_info
       address: "localhost"
@@ -247,6 +247,7 @@ walk_generator:
       start_coordinates: { x: 80, y: 80, z: 0}
       workspace: *workspace_1
       protocol: *pub_sub_1
+
 
 
 

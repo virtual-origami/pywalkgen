@@ -10,8 +10,6 @@ from .AngleGenerator import WalkAngleGenerator
 from .AMQPubSub import AMQ_Pub_Sub
 from .OutlierGenerator import OutlierGenerator
 from .IMU import IMU
-from Raycast.Obstacle import Obstacle
-from Raycast.Point import Point
 from Raycast.Particle import Particle
 from Raycast.StaticMap import StaticMap
 from Raycast.CollisionDetection import CollisionDetection
@@ -115,32 +113,39 @@ class WalkPatternGenerator:
 
             # calculate instantaneous velocity, based on step size calculated in previous iteration and take direction decision
             ranging = self.collision.static_obstacle_avoidance(walk_angle=self.walk_angle)
-            self.walk_angle = self.walk_angle_gen.get_walk_angle(angle=self.walk_angle,
-                                                                 ranging=ranging,
-                                                                 velocity=self.net_step_size / timedelta)
+            self.walk_angle,is_in_collision_course = self.walk_angle_gen.get_walk_angle(angle=self.walk_angle,
+                                                                                        ranging=ranging,
+                                                                                        velocity=self.net_step_size / timedelta)
 
-            # step size decision
-            new_distance_in_sample_time = random.uniform(self.distance_in_sample_time,
-                                                         self.max_walk_speed * timedelta * 0.6134)
-
-            self.distance_in_sample_time = (self.distance_in_sample_time * (1 - self.distance_factor)) \
-                                           + (new_distance_in_sample_time * self.distance_factor)
-
-            self.net_step_size = random.uniform(self.net_step_size,self.distance_in_sample_time)
-
-            # step length in each of the axis
-            if self.walk_dimension == 1:
-                self.x_step_length = self.net_step_size * math.cos(self.walk_angle)
+            if is_in_collision_course:
+                self.x_step_length = 0
                 self.y_step_length = 0
                 self.z_step_length = 0
-            elif self.walk_dimension == 2:
-                self.x_step_length = self.net_step_size * math.cos(self.walk_angle)
-                self.y_step_length = self.net_step_size * math.sin(self.walk_angle)
-                self.z_step_length = 0
+                self.net_step_size = 0
             else:
-                self.x_step_length = self.net_step_size * math.cos(self.walk_angle)
-                self.y_step_length = self.net_step_size * math.sin(self.walk_angle)
-                self.z_step_length = math.sin(math.sqrt((math.pow(self.x_step_length,2) + math.pow(self.y_step_length,2))))  # todo write logic for z_step_length based on angle
+                # step size decision
+                new_distance_in_sample_time = random.uniform(self.distance_in_sample_time,
+                                                             self.max_walk_speed * timedelta * 0.6134)
+
+                self.distance_in_sample_time = (self.distance_in_sample_time * (1 - self.distance_factor)) \
+                                               + (new_distance_in_sample_time * self.distance_factor)
+
+                self.net_step_size = random.uniform(self.net_step_size,self.distance_in_sample_time)
+                # self.net_step_size = 1
+
+                # step length in each of the axis
+                if self.walk_dimension == 1:
+                    self.x_step_length = self.net_step_size * math.cos(self.walk_angle)
+                    self.y_step_length = 0
+                    self.z_step_length = 0
+                elif self.walk_dimension == 2:
+                    self.x_step_length = self.net_step_size * math.cos(math.radians(self.walk_angle))
+                    self.y_step_length = self.net_step_size * math.sin(math.radians(self.walk_angle))
+                    self.z_step_length = 0
+                else:
+                    self.x_step_length = self.net_step_size * math.cos(self.walk_angle)
+                    self.y_step_length = self.net_step_size * math.sin(self.walk_angle)
+                    self.z_step_length = math.sin(math.sqrt((math.pow(self.x_step_length,2) + math.pow(self.y_step_length,2))))  # todo write logic for z_step_length based on angle
 
             # walk based on step size calculated in each direction
             self.x_pos = self.x_pos_prev + self.x_step_length
