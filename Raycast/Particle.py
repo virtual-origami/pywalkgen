@@ -44,22 +44,12 @@ class Particle:
                             closest_obstacle = obstacle
                             closest_distance = distance
                             contact_point = pt
-
-            if ray.angle > 180:
-                ray.angle = -180+(ray.angle % 180)
             result.append({
                 'contact_point':[contact_point.x,contact_point.y]if contact_point is not None else None,
                 "angle":ray.angle,
                 "obstacle":closest_obstacle.description if closest_obstacle is not None else None,
                 "distance":closest_distance
             })
-            # print({
-            #     'contact_point':[contact_point.x,contact_point.x]if contact_point is not None else None,
-            #     "angle":ray.angle,
-            #     "obstacle":closest_obstacle.description if closest_obstacle is not None else None,
-            #     "distance":closest_distance
-            # })
-            # print('\n')
         return result
 
     def look_at_angle(self,segments,start_angle,stop_angle):
@@ -79,8 +69,6 @@ class Particle:
                             if distance < closest_distance:
                                 closest_obstacle = obstacle
                                 closest_distance = distance
-            if ray.angle > 180:
-                ray.angle = -180+(ray.angle % 180)
             result.append({
                 "angle":ray.angle,
                 "obstacle":closest_obstacle.description if closest_obstacle is not None else None,
