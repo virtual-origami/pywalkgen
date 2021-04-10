@@ -63,19 +63,16 @@ async def app(eventloop,config):
                 sys.exit(-1)
 
             # create walker
-            if each_walker['protocol']['type'] == 'amq':
-                walker = WalkPatternGenerator(eventloop=eventloop,config_file=each_walker)
-                await walker.connect()
-                walkers_in_ws.append(walker)
-            # elif:TODO: MQTT CONFIG COMING SOON
-            else:
-                logger.critical("Unknown Protocol for walker mentioned")
-                sys.exit(-1)
+            walker = WalkPatternGenerator(eventloop=eventloop,config_file=each_walker)
+            await walker.connect()
+            walkers_in_ws.append(walker)
+
+
 
         # continuously monitor signal handle and update walker
         while not is_sighup_received:
             for each_walker in walkers_in_ws:
-                await each_walker.run_once(binding_key="telemetry.walker")
+                await each_walker.update(binding_key="telemetry.walker")
 
         # If SIGHUP Occurs, Delete the instances
         for entry in walkers_in_ws:

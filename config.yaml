@@ -28,7 +28,7 @@ scene:
       attributes: &attributes
           scaling: 5
           # interval: 0.1
-  obstacles: &obstacles
+  obstacles_1: &obstacles_1
     - id: '1'
       description: "wall-1"
       render: *block
@@ -155,16 +155,65 @@ scene:
         - [ 100,102 ]
         - [ 160,102 ]
         - [ 160,100 ]
+  obstacles_2: &obstacles_2
+    - id: '1'
+      description: "wall-1"
+      render: *block
+      attributes: *attributes
+      points:
+        - [ 0,0 ]
+        - [ 0,2 ]
+        - [ 100,2 ]
+        - [ 100,0 ]
+    - id: '2'
+      description: "wall-2"
+      render: *block
+      attributes: *attributes
+      points:
+        - [ 0,0 ]
+        - [ 2,0 ]
+        - [ 2,100 ]
+        - [ 0,100 ]
+    - id: '3'
+      description: "wall-3"
+      render: *block
+      attributes: *attributes
+      points:
+        - [ 0,100 ]
+        - [ 0,98 ]
+        - [ 100,98 ]
+        - [ 100,100 ]
+    - id: '4'
+      description: "wall-4"
+      render: *block
+      attributes: *attributes
+      points:
+        - [ 98,0 ]
+        - [ 100,0 ]
+        - [ 100,100 ]
+        - [ 98,100 ]
   robots: &robots
     - id: "1"
       render: *robot_1
       attributes: *attributes
-      base: [50,650]
+      base: { x: 30.0, y: 30.0 }
+    - id: "2"
+      render: *robot_1
+      attributes: *attributes
+      base: { x: 120.0, y: 120.0 }
+    - id: "3"
+      render: *robot_1
+      attributes: *attributes
+      base: { x: 30.0, y: 120.0 }
+    - id: "4"
+      render: *robot_1
+      attributes: *attributes
+      base: { x: 120.0, y: 30.0 }
   workspaces:
     - workspace_1: &workspace_1
         id: 1
         render: *ws_render_1
-        obstacles: *obstacles
+        obstacles: *obstacles_2
         robots: *robots
 walk_generator:
   version: "0.1"
@@ -223,7 +272,7 @@ walk_generator:
         initial: { roll: 0, pitch: 0, yaw: 0 }
     collision:
       distance: 5
-    interval: 0.01 # 100Hz
+    interval: 0.1 # 100Hz
   amq: # AMQP Broker Information
     broker: &amq_connect_info
       address: "localhost"
@@ -236,17 +285,28 @@ walk_generator:
         type: "amq"
         broker: *amq_connect_info
         credential: *amq_credential
-        exchange: "vws_fublish_exchange"
+        exchange: "telemetry_exchange"
         binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
           - "telemetry.walker."
+    - pub_sub_2: &pub_sub_2
+        type: "amq"
+        broker: *amq_connect_info
+        credential: *amq_credential
+        exchange: "db_exchange"
+        binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
+          - "db.walker."
   personnel:
     - id: '1'
       height: 1.6
       walk_boundary: 100
       attribute: *attribute
-      start_coordinates: { x: 80, y: 80, z: 0}
+      start_coordinates: { x: 47, y: 80, z: 0}
       workspace: *workspace_1
-      protocol: *pub_sub_1
+      protocol:
+        publishers:
+          - *pub_sub_1
+          - *pub_sub_2
+        subscribers:
 
 
 

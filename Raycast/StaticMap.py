@@ -17,6 +17,7 @@ class StaticMap:
         try:
             self.obstacles = []
             obstacles = config_file["obstacles"]
+            robots = config_file["robots"]
             for obstacle in obstacles:
                 points = []
                 for point in obstacle["points"]:
@@ -26,6 +27,18 @@ class StaticMap:
                                                obstacle_shape=obstacle["render"]["shape"],
                                                obstacle_type=obstacle["render"]["type"],
                                                description=obstacle["description"]))
+            for robot in robots:
+                center_x = robot["base"]['x']
+                center_y = robot["base"]['y']
+                points = [Point(x=center_x - 2,y=center_y - 2),
+                          Point(x=center_x + 2,y=center_y - 2),
+                          Point(x=center_x + 2,y=center_y + 2),
+                          Point(x=center_x + 2,y=center_y - 2)]
+                self.obstacles.append(Obstacle(id=obstacle["id"],
+                                               corner_points=tuple(points),
+                                               obstacle_shape='polygon',
+                                               obstacle_type='static',
+                                               description="robot_"+robot['id']))
         except AssertionError as e:
             logging.critical(e)
             sys.exit()
