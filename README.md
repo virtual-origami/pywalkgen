@@ -17,16 +17,16 @@ Python Package to generate Human Walking Pattern
 
         pip install -r requirements.txt
 
-4. Install `pyrobomogen` as python package for development:
+4. Install `pywalkgen` as python package for development:
 
         pip install -e .
 
-   This makes the `robot-generator` binary available as a CLI
+   This makes the `walk-generator` binary available as a CLI
 
 ### Usage
 Basic usage:
 
-    $ robot-generator -c config.yaml
+    $ walk-generator -c config.yaml
 
 ### Message Broker (RabbitMQ)
 
@@ -38,7 +38,7 @@ __NOTE__: The `rabbitmqtt` stack needs an external docker network called `iotsta
 
 1. To build Docker Images locally use:
 
-        docker build -t pyrobomogen .
+        docker build -t pywalkgen .
 
 2. To run the Application along with the RabbitMQ Broker connect the container with the `iotstack` network using:
 
@@ -48,4 +48,4 @@ __NOTE__: The `rabbitmqtt` stack needs an external docker network called `iotsta
 
 3. To run the a custom configuration for the Container use:
 
-        docker run --rm -v $(pwd)/config.yaml:/pyrobomogen/config.yaml --network=iotstack pyrobomogen
+        docker run --rm -v $(pwd)/config.yaml:/pywalkgen/config.yaml --network=iotstack pywalkgen
