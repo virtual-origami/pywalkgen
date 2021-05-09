@@ -1,6 +1,4 @@
 import math
-import matplotlib.pyplot as plt
-import numpy
 import logging
 
 logger = logging.getLogger(__name__)
@@ -41,27 +39,3 @@ class Sigmoid:
         """
         denom = 1 + math.exp(-1.0 * self.steepness * (x - self.mid_point))
         return (self.max_value / denom) + self.level_shift
-
-
-if __name__ == '__main__':
-    def sigmoid_wave_test():
-        number_of_samples = 100
-
-        sigmoid_1 = Sigmoid(steepness=0.1)
-        sigmoid_1_out = numpy.zeros(number_of_samples)
-        sigmoid_1_in = numpy.zeros(number_of_samples)
-
-        start_val = int(number_of_samples / 2)
-        stop_val = int((-1 * start_val) - 1)
-        for i in range(start_val,stop_val,-1):
-            sigmoid_1_out[i - start_val] = sigmoid_1.generate(i)
-            sigmoid_1_in[i - start_val] = i
-
-        plt.title("Sigmoid-1 ($n = " + str(number_of_samples) + "$ steps)")
-        plt.xlabel("Input samples")
-        plt.ylabel("Output values")
-        plt.plot(sigmoid_1_in,sigmoid_1_out)
-        plt.show()
-
-
-    sigmoid_wave_test()

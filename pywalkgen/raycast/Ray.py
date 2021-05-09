@@ -1,6 +1,6 @@
 import math
 import logging
-from Raycast.Point import Point
+from pywalkgen.raycast.Point import Point
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

@@ -1,5 +1,4 @@
 import sys
-import asyncio
 from aio_pika import connect_robust,Message,DeliveryMode,ExchangeType,IncomingMessage
 from aio_pika import exceptions as aio_pika_exception
 import logging
@@ -91,7 +90,7 @@ class PubSubAMQP:
                     message_body=message.body
                 )
 
-    async def publish(self, message_content, priority=0):
+    async def publish(self, message_content, priority=0, external_binding_suffix=None):
         """publish: Produce Message to Message Broker
         - message_content: payload of message to be published
         - priority: message priority
@@ -107,7 +106,10 @@ class PubSubAMQP:
                 # logger.debug(
                 #     f'msg Publish: Exchange: {self.exchange_name}, Routing:{binding_key + self.binding_suffix}'
                 # )
-                await self.exchange.publish(message, routing_key=binding_key + self.binding_suffix)
+                if external_binding_suffix is not None:
+                    await self.exchange.publish(message, routing_key=binding_key + external_binding_suffix)
+                else:
+                    await self.exchange.publish(message, routing_key=binding_key + self.binding_suffix)
         except aio_pika_exception.AMQPException as e:
             logger.error(e)
             await self.terminate()

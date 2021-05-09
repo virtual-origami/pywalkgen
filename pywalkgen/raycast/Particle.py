@@ -1,7 +1,7 @@
 import math
 import logging
-from Raycast.Point import Point
-from Raycast.Ray import Ray
+from pywalkgen.raycast.Point import Point
+from pywalkgen.raycast.Ray import Ray
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

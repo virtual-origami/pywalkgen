@@ -10,7 +10,7 @@ logger.addHandler(handler)
 
 
 class Point:
-    def __init__(self,x,y):
+    def __init__(self, x, y):
         try:
             self.x = x
             self.y = y
@@ -26,12 +26,29 @@ class Point:
 
 
 class LineSegment:
-    def __init__(self,point1,point2,description=""):
+    def __init__(self, point1, point2, description=""):
         try:
-            assert type(point1) == Point,"point1 must be of class Point"
-            assert type(point2) == Point,"point2 must be of class Point"
+            assert type(point1) == Point, "point1 must be of class Point"
+            assert type(point2) == Point, "point2 must be of class Point"
             self.a = point1
             self.b = point2
+            self.description = description
+        except AssertionError as e:
+            logging.critical(e)
+            exit()
+        except ValueError as e:
+            logging.critical(e)
+            exit()
+        except Exception as e:
+            logging.critical(e)
+            exit()
+
+
+class Dot:
+    def __init__(self, point, description=""):
+        try:
+            assert type(point) == Point, "point1 must be of class Point"
+            self.a = point
             self.description = description
         except AssertionError as e:
             logging.critical(e)

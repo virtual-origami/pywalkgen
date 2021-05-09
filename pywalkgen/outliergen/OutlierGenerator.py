@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import logging
 
 logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
@@ -34,7 +33,7 @@ class OutlierGenerator:
             self.outlier_distribution_sample_size = sample_size
             self.sample_counter = 0
             self.outlier_position = []
-            self.generate_outlier_position()
+            self._generate_outlier_position()
         except ValueError as e:
             logging.critical(e)
             exit()
@@ -42,22 +41,13 @@ class OutlierGenerator:
             logging.critical(e)
             exit()
 
-    def generate_outlier_position(self):
+    def _generate_outlier_position(self):
         """
         Generate position where outlier need to be generated in a given sample size
         :return: NA
         """
         try:
-            # generate outlier positions
-            # for _ in range(0, self.number_of_outliers):
-            #     new_val = np.random.randint(
-            #         0, self.outlier_distribution_sample_size)
-            #     while new_val in self.outlier_position:
-            #         new_val = np.random.randint(
-            #             0, self.outlier_distribution_sample_size)
-            #     self.outlier_position.append(new_val)
             self.outlier_position = np.random.choice(range(0,self.outlier_distribution_sample_size), self.number_of_outliers)
-
             # sort outlier position in increasing order, fastens the generate
             self.outlier_position.sort()
         except Exception as e:
@@ -84,7 +74,7 @@ class OutlierGenerator:
             # generate new outliers if sample counter is greater or equal to distribution sample size
             if repeat:
                 if self.sample_counter >= self.outlier_distribution_sample_size:
-                    self.generate_outlier_position()
+                    self._generate_outlier_position()
                     self.sample_counter = 0
 
             return float(ret_val)
@@ -92,19 +82,3 @@ class OutlierGenerator:
             logging.critical(e)
             exit()
 
-
-# ----------------------------------------- Test cases -------------------------------------------------
-
-if __name__ == '__main__':
-    print("OutlierGenerator test")
-    n = 1000
-    outlier_model = OutlierGenerator(
-        mean=0, standard_deviation=0.3, number_of_outliers=10, sample_size=100)
-    x = np.zeros(n)
-    y = np.zeros(n)
-    for i in range(1, n):
-        x[i] = outlier_model.generate()
-        y[i] = i
-    plt.title("Outlier ($n = " + str(n) + "$ steps)")
-    plt.plot(y, x)
-    plt.show()

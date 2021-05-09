@@ -27,7 +27,7 @@ scene:
             size: 5
       attributes: &attributes
           scaling: 5
-          # interval: 0.1
+          interval: 0.1
   obstacles_1: &obstacles_1
     - id: '1'
       description: "wall-1"
@@ -196,19 +196,15 @@ scene:
     - id: "1"
       render: *robot_1
       attributes: *attributes
-      base: { x: 30.0, y: 30.0 }
+      base: { x: 20.0, y: 20.0 }
     - id: "2"
       render: *robot_1
       attributes: *attributes
-      base: { x: 120.0, y: 120.0 }
+      base: { x: 50.0, y: 50.0 }
     - id: "3"
       render: *robot_1
       attributes: *attributes
-      base: { x: 30.0, y: 120.0 }
-    - id: "4"
-      render: *robot_1
-      attributes: *attributes
-      base: { x: 120.0, y: 30.0 }
+      base: { x: 80.0, y: 20.0 }
   workspaces:
     - workspace_1: &workspace_1
         id: 1
@@ -221,7 +217,7 @@ walk_generator:
     walk:
       enable_collision: True
       max_walk_speed: 10
-      direction_factor: 0.05
+      direction_factor: 0.5
       distance_factor: 0.7
       angle_deviation_factor: 2
       walk_dimension: 2
@@ -271,8 +267,10 @@ walk_generator:
       orientation:
         initial: { roll: 0, pitch: 0, yaw: 0 }
     collision:
-      distance: 5
-    interval: 0.1 # 100Hz
+      distance:
+        environment: 5
+        robot: 10
+    interval: 0.1 # 10Hz
   amq: # AMQP Broker Information
     broker: &amq_connect_info
       address: "localhost"
@@ -295,18 +293,34 @@ walk_generator:
         exchange: "db_exchange"
         binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
           - "db.walker."
+    - pub_sub_3: &pub_sub_3
+        type: "amq"
+        broker: *amq_connect_info
+        credential: *amq_credential
+        exchange: "telemetry_exchange"
+        binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
+          - "telemetry.robot."
+    - pub_sub_4: &pub_sub_4
+        type: "amq"
+        broker: *amq_connect_info
+        credential: *amq_credential
+        exchange: "control_exchange"
+        binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
+          - "control.robot."
   personnel:
     - id: '1'
       height: 1.6
       walk_boundary: 100
       attribute: *attribute
-      start_coordinates: { x: 47, y: 80, z: 0}
+      start_coordinates: { x: 50, y: 50, z: 0}
       workspace: *workspace_1
       protocol:
         publishers:
           - *pub_sub_1
           - *pub_sub_2
+          - *pub_sub_4
         subscribers:
+          - *pub_sub_3
 
 
 

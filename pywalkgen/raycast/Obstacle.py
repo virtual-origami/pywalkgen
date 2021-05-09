@@ -1,7 +1,7 @@
 import logging
 import sys
 import traceback
-from Raycast.Point import LineSegment
+from pywalkgen.raycast.Point import LineSegment, Dot
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -25,12 +25,16 @@ class Obstacle:
             self.line_segments = []
             if obstacle_shape == 'polygon':
                 for i in range(0,self.num_of_points - 1):
-                    self.line_segments.append(LineSegment(point1=corner_points[i],point2=corner_points[i + 1],description=self.description))
-                self.line_segments.append(LineSegment(point1=corner_points[self.num_of_points - 1],point2=corner_points[0],description=self.description))
+                    self.line_segments.append(LineSegment(point1=corner_points[i],
+                                                          point2=corner_points[i + 1],
+                                                          description=self.description))
+                self.line_segments.append(LineSegment(point1=corner_points[self.num_of_points - 1],
+                                                      point2=corner_points[0],
+                                                      description=self.description))
             elif obstacle_shape == 'line':
-                self.line_segments.append(LineSegment(point1=corner_points[0],point2=corner_points[1],description=self.description))
-            else:
-                self.line_segments.append(LineSegment(point1=corner_points[0],point2=corner_points[0],description=self.description))
+                self.line_segments.append(LineSegment(point1=corner_points[0],
+                                                      point2=corner_points[1],
+                                                      description=self.description))
 
         except AssertionError as e:
             logging.critical(e)
