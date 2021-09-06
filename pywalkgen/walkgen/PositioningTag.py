@@ -9,6 +9,8 @@ class PositioningTag:
         """
         outlier_config = config
         self.outlier_gen = []
+        self.resident_area_id = None
+        self.resident_map_id = None
         self.outlier_gen.append(OutlierGenerator(mean=outlier_config["x"]["mean"],
                                                  standard_deviation=outlier_config["x"]["standard_deviation"],
                                                  number_of_outliers=outlier_config["x"]["number_of_outlier"],
@@ -33,3 +35,4 @@ class PositioningTag:
         uwb_result = [ref[0] + self.outlier_gen[0].generate(), ref[1] + self.outlier_gen[1].generate(),
                       ref[2] + self.outlier_gen[2].generate()]
         return uwb_result
+

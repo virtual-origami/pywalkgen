@@ -6,6 +6,8 @@ import time
 import math
 import logging
 import asyncio
+
+from .DataAggregator import DataAggregator
 from .PositioningTag import PositioningTag
 from pywalkgen.walk_model.AngleGenerator import WalkAngleGenerator
 from pywalkgen.pub_sub.AMQP import PubSubAMQP
@@ -35,17 +37,17 @@ class WalkPatternGenerator:
         :param config_file: config file
         """
         try:
-            # walker id
+            # id assigned to the personnel.
             self.walker_id = config_file["id"]
 
-            # initialize the start coordinates
+            # initialize the start coordinates of the personnel
             self.pos = {'x': config_file["start_coordinates"]["x"],
                         'y': config_file["start_coordinates"]["y"],
                         'z': config_file["start_coordinates"]["z"]}
 
             walk_attribute = config_file["attribute"]["walk"]
 
-            # Walk angle generators
+            # Walk angle generator for the personnel walk
             self.walk_angle_gen = WalkAngleGenerator(mid_point=walk_attribute["sigmoid_attributes"]["mid_point"],
                                                      steepness=walk_attribute["sigmoid_attributes"]["steepness"],
                                                      max_value=math.radians(
@@ -58,8 +60,8 @@ class WalkPatternGenerator:
             # IMU tag
             self.imu_tag = IMU(config_file=config_file)
 
-            # Collision detection
-            self.collision = CollisionDetection(scene=StaticMap(config_file=config_file["workspace"]),
+            # Collision detection for static and dynamic obstacles
+            self.collision = CollisionDetection(scene=StaticMap(config_file=config_file["map"]),
                                                 particle=Particle(particle_id=config_file["id"],
                                                                   x=config_file["start_coordinates"]["x"],
                                                                   y=config_file["start_coordinates"]["y"]),
@@ -68,8 +70,12 @@ class WalkPatternGenerator:
                                                 robot_collision_distance=config_file["attribute"]["collision"][
                                                     "distance"]["robot"])
 
-            # uwb tag
+            # UWB tag
             self.uwb_tag = PositioningTag(config=config_file["attribute"]["positioning"]["outliers"])
+
+            self.data_aggregators = []
+            for area in config_file["map"]["area_division"]:
+                self.data_aggregators.append(DataAggregator(area_config=area))
 
             # set Walk attributes and angle generators
             self.max_walk_speed = walk_attribute["max_walk_speed"]
@@ -85,7 +91,7 @@ class WalkPatternGenerator:
             self.time_past = 0
 
             # sample time information
-            self.interval = config_file['attribute']['interval']
+            self.interval = config_file['attribute']['other']['interval']
 
             self.distance_factor = config_file["attribute"]["walk"]["distance_factor"]
             self.distance_in_sample_time = 0
@@ -157,7 +163,7 @@ class WalkPatternGenerator:
         # check for matching subscriber with exchange and binding name in all subscribers
         for subscriber in self.subscribers:
             if subscriber.exchange_name == exchange_name:
-                if "telemetry.robot" in binding_name:
+                if "visual.generator.robot" in binding_name:
                     # extract robot id from binding name
                     binding_delimited_array = binding_name.split(".")
                     robot_id = binding_delimited_array[len(binding_delimited_array) - 1]
@@ -169,6 +175,8 @@ class WalkPatternGenerator:
 
                         # check if robot id matches with 'id' field in the message
                         if robot_id == message_body["id"]:
+                            logger.debug(f'Sub: exchange: {exchange_name} msg {message_body}')
+
                             # extract information from message body
                             base_shoulder = [message_body["base"], message_body["shoulder"]]
                             shoulder_elbow = [message_body["shoulder"], message_body["elbow"]]
@@ -265,11 +273,12 @@ class WalkPatternGenerator:
             self.pos_prev['z'] = self.pos['z']
 
             uwb_measurement = self.uwb_tag.get_measurement(ref=[self.pos['x'], self.pos['y'], self.pos['z']])
-
+            data_aggregator_id = self.get_area_information(ref=[self.pos['x'], self.pos['y']])
             result = {
                 "measurement": "walk",
                 "time": time.time_ns(),
                 "id": self.walker_id,
+                "data_aggregator_id": data_aggregator_id,
                 "walk_angle": self.walk_angle,
                 "x_step_length": step_length['x'],
                 "y_step_length": step_length['y'],
@@ -280,7 +289,7 @@ class WalkPatternGenerator:
                 "x_uwb_pos": uwb_measurement[0],
                 "y_uwb_pos": uwb_measurement[1],
                 "z_uwb_pos": uwb_measurement[2],
-                'view': ranging
+                "view": ranging
             }
             result.update(heading)
 
@@ -289,7 +298,19 @@ class WalkPatternGenerator:
 
             result.update({"timestamp": round(time.time() * 1000)})
 
-            return result
+            plm_result = {
+                "id": result["id"],
+                "data_aggregator_id": result["data_aggregator_id"],
+                "x_uwb_pos": result["x_uwb_pos"],
+                "y_uwb_pos": result["y_uwb_pos"],
+                "z_uwb_pos": result["z_uwb_pos"],
+                'x_imu_vel': result['x_imu_vel'],
+                'y_imu_vel': result['y_imu_vel'],
+                'z_imu_vel': result['z_imu_vel'],
+                "timestamp": result['timestamp']
+            }
+
+            return result, plm_result
         except Exception as e:
             logger.critical("unhandled exception", e)
             sys.exit(-1)
@@ -305,7 +326,7 @@ class WalkPatternGenerator:
         for publisher in self.publishers:
             if exchange_name == publisher.exchange_name:
                 await publisher.publish(message_content=msg, external_binding_suffix=external_binding_suffix)
-                logger.debug(msg)
+                logger.debug(f'Pub: exchange: {exchange_name} msg {msg}')
 
     async def connect(self):
         """
@@ -318,7 +339,7 @@ class WalkPatternGenerator:
         for subscriber in self.subscribers:
             await subscriber.connect(mode="subscriber")
 
-    async def update(self, binding_key=None):
+    async def update(self):
         """
         update walk generator.
         Note This function need to be called in a loop every update cycle
@@ -328,12 +349,10 @@ class WalkPatternGenerator:
 
         result = dict()
         if self.interval >= 0:
-            result.update(await self._update3d())
+            all_result, plm_result = await self._update3d()
+            result.update(all_result)
 
-        # Publish
-        if binding_key is not None:
-            await self.publish(exchange_name='telemetry_exchange', msg=json.dumps(result).encode())
-            await self.publish(exchange_name='db_exchange', msg=json.dumps(result).encode())
+        await self.publish(exchange_name='generator_personnel', msg=json.dumps(result).encode())
 
         # sleep until its time for next sample
         if self.interval >= 0:
@@ -343,3 +362,9 @@ class WalkPatternGenerator:
 
     def get_states(self):
         return {"x_ref_pos": self.pos['x'], "y_ref_pos ": self.pos['y'], "z_ref_pos": self.pos['z']}
+
+    def get_area_information(self, ref):
+        for data_aggregator in self.data_aggregators:
+            if data_aggregator.locate(point=[ref[0], ref[1]]):
+                return data_aggregator.id
+        return None

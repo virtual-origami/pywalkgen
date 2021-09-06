@@ -28,13 +28,14 @@ class StaticMap:
                                                obstacle_type=obstacle["render"]["type"],
                                                description=obstacle["description"]))
             for robot in robots:
-                center_x = robot["base"]['x']
-                center_y = robot["base"]['y']
-                points = [Point(x=center_x - 2, y=center_y - 2),
-                          Point(x=center_x + 2, y=center_y - 2),
-                          Point(x=center_x + 2, y=center_y + 2),
-                          Point(x=center_x + 2, y=center_y - 2)]
-                arm = points = [Point(x=center_x - 2, y=center_y - 2), Point(x=center_x + 2, y=center_y - 2)]
+                center_x = robot["base"]["coordinate"]['x']
+                center_y = robot["base"]["coordinate"]['y']
+                size = robot["base"]["size"] * 0.5
+                points = [Point(x=center_x - size, y=center_y - size),
+                          Point(x=center_x + size, y=center_y - size),
+                          Point(x=center_x + size, y=center_y + size),
+                          Point(x=center_x - size, y=center_y + size)]
+                arm = [Point(x=center_x - 2, y=center_y - 2), Point(x=center_x + 2, y=center_y - 2)]
                 self.obstacles.append(Obstacle(id=obstacle["id"],
                                                corner_points=tuple(points),
                                                obstacle_shape='polygon',

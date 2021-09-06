@@ -78,12 +78,13 @@ class CollisionDetection:
                     result.append(item)
 
         for item in self.views:
-            if item['distance'] < self.robot_collision_distance:
-                view_substring = item['obstacle'].split("_")
-                if ("shoulder" in view_substring) or \
-                        ("elbow" in view_substring) or \
-                        ("wrist" in view_substring):
-                    robot_control_msg.append({"id": view_substring[1], "control": "stop"})
+            if item['distance'] is not None:
+                if item['distance'] < self.robot_collision_distance:
+                    view_substring = item['obstacle'].split("_")
+                    if ("shoulder" in view_substring) or \
+                            ("elbow" in view_substring) or \
+                            ("wrist" in view_substring):
+                        robot_control_msg.append({"id": view_substring[1], "control": "stop"})
         return result, robot_control_msg
 
     def avoidance(self):

@@ -1,9 +1,8 @@
 scene:
   render:
-      workspace_render:
-        - ws_render_1: &ws_render_1
+      map_render:
+        - map_render_1: &map_render_1
             dimensions: [ 800, 1000 ]
-            grid_size: 1
             color: [ 255,255,255 ]
             type: "2D"
       obstacle_render:
@@ -28,171 +27,178 @@ scene:
       attributes: &attributes
           scaling: 5
           interval: 0.1
-  obstacles_1: &obstacles_1
+  obstacles_placement_1: &obstacles_placement_1
     - id: '1'
       description: "wall-1"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 0,0 ]
-        - [ 0,2 ]
-        - [ 160,2 ]
-        - [ 160,0 ]
+        - [ 10,10 ]
+        - [ 160,10 ]
     - id: '2'
       description: "wall-2"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 0,200 ]
-        - [ 0,198 ]
-        - [ 160,198 ]
-        - [ 160,200 ]
+        - [ 160,10 ]
+        - [ 160,160 ]
     - id: '3'
       description: "wall-3"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 158,2 ]
-        - [ 160,2 ]
-        - [ 160,198 ]
-        - [ 158,198 ]
+        - [ 160,160 ]
+        - [ 10,160 ]
     - id: '4'
       description: "wall-4"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 0,2 ]
-        - [ 2,2 ]
-        - [ 2,198 ]
-        - [ 0,198 ]
+        - [ 10,160 ]
+        - [ 10,10 ]
     - id: '5'
       description: "wall-5"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 60,2 ]
-        - [ 62,2 ]
-        - [ 62,60 ]
-        - [ 60,60 ]
+        - [ 60,10 ]
+        - [ 60,30 ]
     - id: '6'
       description: "wall-6"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 60,70 ]
-        - [ 62,70 ]
-        - [ 62,100 ]
-        - [ 60,100 ]
+        - [ 100,10 ]
+        - [ 100,30 ]
     - id: '7'
       description: "wall-7"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 0,100 ]
-        - [ 0,102 ]
-        - [ 60,102 ]
-        - [ 60,100 ]
+        - [ 60,80 ]
+        - [ 60,110 ]
     - id: '8'
       description: "wall-8"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 60,100 ]
-        - [ 62,100 ]
-        - [ 62,160 ]
+        - [ 60,130 ]
         - [ 60,160 ]
     - id: '9'
       description: "wall-9"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 60,170 ]
-        - [ 62,170 ]
-        - [ 62,198 ]
-        - [ 60,198 ]
+        - [ 100,10 ]
+        - [ 100,30 ]
     - id: '10'
       description: "wall-10"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 100,2 ]
-        - [ 102,2 ]
-        - [ 102,60 ]
-        - [ 100,60 ]
+        - [ 100,50 ]
+        - [ 100,110 ]
     - id: '11'
       description: "wall-11"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 100,70 ]
-        - [ 102,70 ]
-        - [ 102,100 ]
-        - [ 100,100 ]
+        - [ 100,130 ]
+        - [ 100,160 ]
     - id: '12'
       description: "wall-12"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 100,100 ]
-        - [ 102,100 ]
-        - [ 102,160 ]
-        - [ 100,160 ]
+        - [ 10,80 ]
+        - [ 60,80 ]
     - id: '13'
       description: "wall-13"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 100,170 ]
-        - [ 102,170 ]
-        - [ 102,198 ]
-        - [ 100,198 ]
+        - [ 100,80 ]
+        - [ 160,80 ]
     - id: '14'
       description: "wall-14"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 100,100 ]
-        - [ 100,102 ]
-        - [ 160,102 ]
-        - [ 160,100 ]
-  obstacles_2: &obstacles_2
+        - [ 60,50 ]
+        - [ 60,80 ]
+  obstacles_placement_2: &obstacles_placement_2
     - id: '1'
       description: "wall-1"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 0,0 ]
-        - [ 0,2 ]
-        - [ 100,2 ]
-        - [ 100,0 ]
+        - [ 10,10 ]
+        - [ 100,10 ]
     - id: '2'
       description: "wall-2"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 0,0 ]
-        - [ 2,0 ]
-        - [ 2,100 ]
-        - [ 0,100 ]
+        - [ 100,10 ]
+        - [ 100,100 ]
     - id: '3'
       description: "wall-3"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 0,100 ]
-        - [ 0,98 ]
-        - [ 100,98 ]
         - [ 100,100 ]
+        - [ 10,100 ]
     - id: '4'
       description: "wall-4"
-      render: *block
+      render: *wall
       attributes: *attributes
+      width: 8
       points:
-        - [ 98,0 ]
-        - [ 100,0 ]
-        - [ 100,100 ]
-        - [ 98,100 ]
-  robots: &robots
+        - [ 10,100 ]
+        - [ 10,10 ]
+  robots_placement_1: &robots_placement_1
+    - id: "1"
+      render: *robot_1
+      attributes: *attributes
+      base:
+        coordinate: { x: 35.0, y: 50.0 }
+        size: 4
+    - id: "2"
+      render: *robot_1
+      attributes: *attributes
+      base:
+        coordinate: { x: 130.0, y: 120.0 }
+        size: 4
+#    - id: "3"
+#      render: *robot_1
+#      attributes: *attributes
+#      base:
+#        coordinate: { x: 130.0, y: 50.0 }
+#        size: 4
+#    - id: "4"
+#      render: *robot_1
+#      attributes: *attributes
+#      base:
+#        coordinate: { x: 35.0, y: 120.0 }
+#        size: 4
+  robots_placement_2: &robots_placement_2
     - id: "1"
       render: *robot_1
       attributes: *attributes
@@ -205,72 +211,88 @@ scene:
       render: *robot_1
       attributes: *attributes
       base: { x: 80.0, y: 20.0 }
-  workspaces:
-    - workspace_1: &workspace_1
+  areas_division_1: &areas_division_1
+    - id: 1
+      boundary:
+        colour: [ 255,255,0 ]
+        alpha: 0.3
+        coordinates:
+          - [ 10,10 ]
+          - [ 85,10 ]
+          - [ 85,85 ]
+          - [ 10,85 ]
+    - id: 2
+      boundary:
+        colour: [ 255,255,0 ]
+        alpha: 0.3
+        coordinates:
+          - [ 85,10 ]
+          - [ 160,10 ]
+          - [ 160,85 ]
+          - [ 85,85 ]
+    - id: 3
+      boundary:
+        colour: [ 255,255,0 ]
+        alpha: 0.3
+        coordinates:
+          - [ 10,85 ]
+          - [ 85,85 ]
+          - [ 85,160 ]
+          - [ 10,160 ]
+    - id: 4
+      boundary:
+        colour: [ 255,255,0 ]
+        alpha: 0.3
+        coordinates:
+          - [ 85,85 ]
+          - [ 160,85 ]
+          - [ 160,160 ]
+          - [ 85,160 ]
+  areas_division_2: &areas_division_2
+    - id: 1
+      boundary:
+        colour: [ 255,255,0 ]
+        alpha: 0.3
+        coordinates:
+          - [ 10,10 ]
+          - [ 45,10 ]
+          - [ 45, 45 ]
+          - [ 10,45 ]
+    - id: 2
+      boundary:
+        colour: [ 255,255,0 ]
+        alpha: 0.3
+        coordinates:
+          - [ 45,10 ]
+          - [ 100,10 ]
+          - [ 100, 45 ]
+          - [ 45,45 ]
+    - id: 3
+      boundary:
+        colour: [ 255,255,0 ]
+        alpha: 0.3
+        coordinates:
+          - [ 10,45 ]
+          - [ 45,45 ]
+          - [ 45, 100 ]
+          - [ 10,100 ]
+    - id: 4
+      boundary:
+        colour: [ 255,255,0 ]
+        alpha: 0.3
+        coordinates:
+          - [ 45,45 ]
+          - [ 100,45 ]
+          - [ 100, 100 ]
+          - [ 45,100 ]
+  maps:
+    - map_1: &map_1
         id: 1
-        render: *ws_render_1
-        obstacles: *obstacles_2
-        robots: *robots
-walk_generator:
-  version: "0.1"
-  attribute: &attribute
-    walk:
-      enable_collision: True
-      max_walk_speed: 10
-      direction_factor: 0.5
-      distance_factor: 0.7
-      angle_deviation_factor: 2
-      walk_dimension: 2
-      sigmoid_attributes:
-        mid_point: 0
-        steepness: 0.5
-        min_angle: 45
-        max_angle: 135
-    positioning:
-      outliers:
-        x:
-          mean: 0
-          standard_deviation: 2
-          number_of_outlier: 20
-          sample_size: 100
-        y:
-          mean: 0
-          standard_deviation: 2
-          number_of_outlier: 20
-          sample_size: 100
-        z:
-          mean: 0
-          standard_deviation: 0.5
-          number_of_outlier: 20
-          sample_size: 100
-    motion:
-      acceleration:
-        initial: { x: 0, y: 0, z: 0 }
-        outliers:
-          x:
-            mean: 0
-            standard_deviation: 0.1
-            number_of_outlier: 100
-            sample_size: 100
-          y:
-            mean: 0
-            standard_deviation: 0.1
-            number_of_outlier: 100
-            sample_size: 100
-          z:
-            mean: 0
-            standard_deviation: 0.1
-            number_of_outlier: 100
-            sample_size: 100
-      velocity:
-        initial: { x: 0, y: 0, z: 0 }
-      orientation:
-        initial: { roll: 0, pitch: 0, yaw: 0 }
-    collision:
-      distance:
-        environment: 5
-        robot: 10
-    interval: 0.1 # 10Hz
+        render: *map_render_1
+        obstacles: *obstacles_placement_1
+        robots: *robots_placement_1
+        area_division: *areas_division_1
+preset:
   amq: # AMQP Broker Information
     broker: &amq_connect_info
       address: "localhost"
@@ -279,48 +301,103 @@ walk_generator:
       username: "admin"
       password: "rabbit"
   pub_sub:
-    - pub_sub_1: &pub_sub_1
+    - pub_sub_1: &pub_generator_personnel
         type: "amq"
         broker: *amq_connect_info
         credential: *amq_credential
-        exchange: "telemetry_exchange"
+        exchange: "generator_personnel"
         binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
-          - "telemetry.walker."
-    - pub_sub_2: &pub_sub_2
+          - "generator.personnel."
+    - pub_sub_2: &sub_visual
         type: "amq"
         broker: *amq_connect_info
         credential: *amq_credential
-        exchange: "db_exchange"
+        exchange: "visual"
         binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
-          - "db.walker."
-    - pub_sub_3: &pub_sub_3
-        type: "amq"
-        broker: *amq_connect_info
-        credential: *amq_credential
-        exchange: "telemetry_exchange"
-        binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
-          - "telemetry.robot."
-    - pub_sub_4: &pub_sub_4
-        type: "amq"
-        broker: *amq_connect_info
-        credential: *amq_credential
-        exchange: "control_exchange"
-        binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
-          - "control.robot."
-  personnel:
-    - id: '1'
-      height: 1.6
-      walk_boundary: 100
-      attribute: *attribute
-      start_coordinates: { x: 50, y: 50, z: 0}
-      workspace: *workspace_1
-      protocol:
+          - "visual.generator.robot."
+  protocols:
+    - protocol_1: &protocol_1
         publishers:
-          - *pub_sub_1
-          - *pub_sub_2
-          - *pub_sub_4
+          - *pub_generator_personnel
         subscribers:
-          - *pub_sub_3
+          - *sub_visual
+  attributes:
+    walks:
+      - walk_1: &walk_1
+          enable_collision: True
+          max_walk_speed: 10
+          direction_factor: 0.5
+          distance_factor: 0.7
+          angle_deviation_factor: 2
+          walk_dimension: 2
+          sigmoid_attributes:
+            mid_point: 0
+            steepness: 0.5
+            min_angle: 45
+            max_angle: 135
+    positionings:
+      - positioning_1: &positioning_1
+          outliers:
+            x:
+              mean: 0
+              standard_deviation: 2
+              number_of_outlier: 20
+              sample_size: 100
+            y:
+              mean: 0
+              standard_deviation: 2
+              number_of_outlier: 20
+              sample_size: 100
+            z:
+              mean: 0
+              standard_deviation: 0.5
+              number_of_outlier: 20
+              sample_size: 100
+    motions:
+      - motion_1: &motion_1
+          acceleration:
+            initial: { x: 0, y: 0, z: 0 }
+            outliers:
+              x:
+                mean: 0
+                standard_deviation: 0.1
+                number_of_outlier: 50
+                sample_size: 100
+              y:
+                mean: 0
+                standard_deviation: 0.1
+                number_of_outlier: 50
+                sample_size: 100
+              z:
+                mean: 0
+                standard_deviation: 0.1
+                number_of_outlier: 50
+                sample_size: 100
+          velocity:
+            initial: { x: 0, y: 0, z: 0 }
+          orientation:
+            initial: { roll: 0, pitch: 0, yaw: 0 }
+    collisions:
+      - collision_1: &collision_1
+          distance:
+            environment: 5
+            robot: 10
+    other: &other
+      interval: 0.1
+walk_generator:
+  version: "0.1"
+  personnels:
+    - id: '1'
+      attribute:
+        walk: *walk_1
+        positioning: *positioning_1
+        motion: *motion_1
+        collision: *collision_1
+        other: *other
+      start_coordinates: { x: 120, y: 55, z: 0}
+      map: *map_1
+      protocol: *protocol_1
+
 
 
 

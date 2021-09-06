@@ -35,7 +35,7 @@ def signal_handler(name):
 
 async def app(eventloop, config):
     """Main application for Personnel Generator"""
-    walkers_in_ws = []
+    walkers_in_map = []
     global is_sighup_received
 
     while True:
@@ -48,14 +48,8 @@ async def app(eventloop, config):
 
         logger.debug("Personnel Generator Version: %s", walk_config['version'])
 
-        # check if amq or mqtt key description present in configuration
-        if ("amq" not in walk_config) and ("mqtt" not in walk_config):
-            logger.critical("Please provide either 'amq' or 'mqtt' configuration")
-            sys.exit(-1)
-
         # Personnel instantiation
-        for each_walker in walk_config["personnel"]:
-
+        for each_walker in walk_config["personnels"]:
             # check for protocol key
             if "protocol" not in each_walker:
                 logger.critical("no 'protocol' key found.")
@@ -64,15 +58,15 @@ async def app(eventloop, config):
             # create walker
             walker = WalkPatternGenerator(eventloop=eventloop, config_file=each_walker)
             await walker.connect()
-            walkers_in_ws.append(walker)
+            walkers_in_map.append(walker)
 
         # continuously monitor signal handle and update walker
         while not is_sighup_received:
-            for each_walker in walkers_in_ws:
-                await each_walker.update(binding_key="telemetry.walker")
+            for each_walker in walkers_in_map:
+                await each_walker.update()
 
         # If SIGHUP Occurs, Delete the instances
-        for entry in walkers_in_ws:
+        for entry in walkers_in_map:
             del entry
 
         # reset sighup handler flag
