@@ -1,10 +1,12 @@
 from __future__ import generator_stop
 from __future__ import annotations
 
-from pywalkgen.walkgen.PositioningTag import PositioningTag
-from pywalkgen.walkgen.WalkGenerator import WalkPatternGenerator
+from .PositioningTag import PositioningTag
+from .WalkGenerator import WalkPatternGenerator
+from .DataAggregator import DataAggregator
 
 __all__ = [
     'PositioningTag',
-    'WalkPatternGenerator'
+    'WalkPatternGenerator',
+    'DataAggregator'
 ]

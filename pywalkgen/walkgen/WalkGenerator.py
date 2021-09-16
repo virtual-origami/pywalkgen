@@ -9,12 +9,12 @@ import asyncio
 
 from .DataAggregator import DataAggregator
 from .PositioningTag import PositioningTag
-from pywalkgen.walk_model.AngleGenerator import WalkAngleGenerator
-from pywalkgen.pub_sub.AMQP import PubSubAMQP
-from pywalkgen.imu.IMU import IMU
-from pywalkgen.raycast.Particle import Particle
-from pywalkgen.raycast.StaticMap import StaticMap
-from pywalkgen.collision_detection.CollisionDetection import CollisionDetection
+
+from pywalkgen.walk_model import WalkAngleGenerator
+from pywalkgen.pub_sub import PubSubAMQP
+from pywalkgen.imu import IMU
+from pywalkgen.raycast import Particle, StaticMap
+from pywalkgen.collision_detection import CollisionDetection
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

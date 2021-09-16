@@ -1,7 +1,7 @@
 import logging
 import sys
 import traceback
-from pywalkgen.raycast.Point import LineSegment, Dot
+from .Point import LineSegment, Dot
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

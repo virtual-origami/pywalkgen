@@ -1,11 +1,9 @@
 aio-pika==6.8.0
 aiormq==3.3.1
-idna==3.1
+idna==3.2
 multidict==5.1.0
-numpy==1.20.2
-opensimplex==0.3
+numpy==1.21.2
 pamqp==2.3.0
-perlin-noise==1.7
 PyYAML==5.4.1
-scipy==1.6.2
+Shapely==1.7.1
 yarl==1.6.3

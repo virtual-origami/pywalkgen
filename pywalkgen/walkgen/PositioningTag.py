@@ -1,4 +1,4 @@
-from pywalkgen.outliergen.OutlierGenerator import OutlierGenerator
+from pywalkgen.outliergen import OutlierGenerator
 
 
 class PositioningTag:

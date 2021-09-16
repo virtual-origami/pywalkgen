@@ -6,7 +6,7 @@ import sys
 import signal
 import functools
 import yaml
-from pywalkgen.walkgen.WalkGenerator import WalkPatternGenerator
+from pywalkgen.walkgen import WalkPatternGenerator
 
 logging.basicConfig(level=logging.WARNING, format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 

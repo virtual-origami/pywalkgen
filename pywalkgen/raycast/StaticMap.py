@@ -1,7 +1,7 @@
 import logging
 import sys
-from pywalkgen.raycast.Obstacle import Obstacle
-from pywalkgen.raycast.Point import Point
+from .Obstacle import Obstacle
+from .Point import Point
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

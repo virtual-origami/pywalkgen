@@ -1,4 +1,4 @@
-from pywalkgen.raycast.Point import Point, LineSegment
+from pywalkgen.raycast import Point, LineSegment
 import logging
 
 logger = logging.getLogger(__name__)

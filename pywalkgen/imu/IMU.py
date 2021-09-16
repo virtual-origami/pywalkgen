@@ -1,7 +1,7 @@
 import sys
 import math
 import logging
-from pywalkgen.outliergen.OutlierGenerator import OutlierGenerator
+from pywalkgen.outliergen import OutlierGenerator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
