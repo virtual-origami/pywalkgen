@@ -7,26 +7,36 @@ Python Package to generate Human Walking Pattern
 
 1. Create a Virtual Environment
    
-        $ virtualenv -m venv venv
-
+    ```bash
+   $ virtualenv -m venv venv
+   ```
+   
 2. Activate Virtual Environment
 
-        $ . venv/bin/activate 
+    ```bash
+    $ . venv/bin/activate 
+    ```
 
 3. Install the Dependencies
 
-        pip install -r requirements.txt
+    ```bash
+    $ pip install -r requirements.txt
+    ```
 
 4. Install `pywalkgen` as python package for development:
 
-        pip install -e .
-
+    ```bash
+   $ pip install -e .
+   ```
+   
    This makes the `walk-generator` binary available as a CLI
 
 ### Usage
-Basic usage:
+Run `walk-generator` binary in command line:
 
-    $ walk-generator -c config.yaml
+```bash
+$ walk-generator -c config.yaml
+```
 
 ### Message Broker (RabbitMQ)
 
@@ -38,14 +48,20 @@ __NOTE__: The `rabbitmqtt` stack needs an external docker network called `iotsta
 
 1. To build Docker Images locally use:
 
-        docker build -t pywalkgen .
+    ```bash
+    $ docker build -t pywalkgen:<version> .
+    ```
 
 2. To run the Application along with the RabbitMQ Broker connect the container with the `iotstack` network using:
 
-        docker run --rm --network=iotstack pyrobomogen
-    
+    ```bash
+    $ docker run --rm --network=iotstack -t pywalkgen:<version>
+    ```
+
     __INFO__: Change the broker address in the `config.yaml` file to `rabbitmq` (name of the RabbitMQ Container in _rabbitmqtt_ stack)
 
 3. To run the a custom configuration for the Container use:
 
-        docker run --rm -v $(pwd)/config.yaml:/pywalkgen/config.yaml --network=iotstack pywalkgen
+    ```bash
+    $ docker run --rm -v $(pwd)/config.yaml:/pywalkgen/config.yaml --network=iotstack -t pywalkgen:<version>
+    ```
