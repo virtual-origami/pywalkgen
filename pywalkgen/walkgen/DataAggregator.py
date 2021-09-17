@@ -9,7 +9,7 @@ class DataAggregator:
             boundary.append(coordinate)
         self.polygon = Polygon(boundary)
 
-    def locate(self,point):
+    def is_in_radio_range(self, point):
         p1 = Point(point[0], point[1])
         return p1.within(self.polygon)
 

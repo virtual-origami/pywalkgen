@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import pywalkgen.cli
+from pywalkgen.cli import app_main
 
 if __name__ == "__main__":
-    pywalkgen.cli.main()
+    app_main()

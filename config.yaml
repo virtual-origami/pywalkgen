@@ -295,10 +295,16 @@ scene:
 preset:
   amq: # AMQP Broker Information
     broker: &amq_connect_info
-      address: "rabbitmq"
+      address: "localhost"
       port: 5672
     credentials: &amq_credential
       username: "admin"
+      password: "rabbit"
+  redis: &redis_connect_info
+    server:
+      address: "localhost"
+      port: 6379
+    credentials:
       password: "rabbit"
   pub_sub:
     - pub_sub_1: &pub_generator_personnel
@@ -306,21 +312,58 @@ preset:
         broker: *amq_connect_info
         credential: *amq_credential
         exchange: "generator_personnel"
-        binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
-          - "generator.personnel."
+        queue: "generator_personnel_rk"
+        handler:
     - pub_sub_2: &sub_visual
         type: "amq"
         broker: *amq_connect_info
         credential: *amq_credential
         exchange: "visual"
-        binding_keys: # Default Queue Logic will be: <binding_key>.robot.<id>
-          - "visual.generator.robot."
+        queue: "visual_generator_robot_rk"
+        handler: "robot_msg_handler"
   protocols:
     - protocol_1: &protocol_1
         publishers:
           - *pub_generator_personnel
         subscribers:
           - *sub_visual
+  algorithm_attributes:
+    rakf:
+      rakf_1: &rakf_1
+        type: 'rakf'
+        track_dimension: 3
+        model:
+          type: "uwb_imu"     #type can be of   1. "uwb_imu"    2. "uwb"
+          coefficient: { x: 1, y: 1, z: 1 }
+        error:
+          model: { x: 1, y: 1, z: 1 }
+          measurement: { x: 1, y: 1, z: 1 }
+          state_error_variance: { x: 10, y: 10, z: 10 }
+        threshold:
+          residual: { x: 1.5, y: 1.5, z: 1.5 } # C (outer circle)
+          adaptive: { x: 1, y: 1, z: 1 } # C0 (Inner Circle)
+          gamma: { x: 50, y: 50, z: 50 }
+        estimator:
+          parameter:
+            count: 10
+        interval: 0.05
+      rakf_2: &rakf_2
+        type: 'rakf'
+        track_dimension: 3
+        model:
+          type: "uwb"     #type can be of   1. "uwb_imu"    2. "uwb"
+          coefficient: { x: 1, y: 1, z: 1 }
+        error:
+          model: { x: 1, y: 1, z: 1 }
+          measurement: { x: 0.5, y: 0.5, z: 0.5 }
+          state_error_variance: { x: 1, y: 1, z: 1 }
+        threshold:
+          residual: { x: 0.5, y: 0.5, z: 0.5 } # C (outer circle)
+          adaptive: { x: 0.25, y: 0.25, z: 0.25 } # C0 (Inner Circle)
+        estimator:
+          parameter:
+            count: 10
+        interval: 0.1
   attributes:
     walks:
       - walk_1: &walk_1
@@ -382,10 +425,11 @@ preset:
           distance:
             environment: 5
             robot: 10
-    other: &other
-      interval: 0.1
+
 walk_generator:
   version: "0.1"
+  in_mem_db: *redis_connect_info
+  sample_interval: 0.5
   personnels:
     - id: '1'
       attribute:
@@ -393,11 +437,20 @@ walk_generator:
         positioning: *positioning_1
         motion: *motion_1
         collision: *collision_1
-        other: *other
-      start_coordinates: { x: 120, y: 55, z: 0}
+      start_coordinates: { x: 30, y: 50, z: 0}
       map: *map_1
       protocol: *protocol_1
-
+      algorithm: *rakf_1
+    - id: '2'
+      attribute:
+        walk: *walk_1
+        positioning: *positioning_1
+        motion: *motion_1
+        collision: *collision_1
+      start_coordinates: { x: 30, y: 50, z: 0}
+      map: *map_1
+      protocol: *protocol_1
+      algorithm: *rakf_1
 
 
 

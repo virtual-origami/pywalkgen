@@ -7,6 +7,8 @@ import math
 import logging
 import asyncio
 
+import numpy as np
+
 from .DataAggregator import DataAggregator
 from .PositioningTag import PositioningTag
 
@@ -15,6 +17,7 @@ from pywalkgen.pub_sub import PubSubAMQP
 from pywalkgen.imu import IMU
 from pywalkgen.raycast import Particle, StaticMap
 from pywalkgen.collision_detection import CollisionDetection
+from pywalkgen.in_mem_db import RedisDB
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -29,7 +32,7 @@ logger.addHandler(handler)
 
 class WalkPatternGenerator:
 
-    def __init__(self, eventloop, config_file):
+    def __init__(self, eventloop, config_file, db):
         """
         Initialize walk pattern generator
         Walk pattern generator consists of
@@ -90,9 +93,6 @@ class WalkPatternGenerator:
             self.time_now = 0
             self.time_past = 0
 
-            # sample time information
-            self.interval = config_file['attribute']['other']['interval']
-
             self.distance_factor = config_file["attribute"]["walk"]["distance_factor"]
             self.distance_in_sample_time = 0
 
@@ -107,7 +107,7 @@ class WalkPatternGenerator:
                             PubSubAMQP(
                                 eventloop=eventloop,
                                 config_file=publisher,
-                                binding_suffix=self.walker_id
+                                binding_suffix= self.walker_id
                             )
                         )
                     else:
@@ -142,11 +142,139 @@ class WalkPatternGenerator:
                         logger.error("Provide protocol amq config")
                         raise AssertionError("Provide protocol amq config")
 
+            algorithm = config_file['algorithm']
+            default_state_information_x = {
+                "time_previous": -1.0,
+                "model_type": algorithm["model"]["type"],
+                "state_model_prediction": 0.0,
+                "state_model": float(self.pos['x']),
+                "system_model": float(algorithm["model"]["coefficient"]["x"]),
+                "system_model_error": float(algorithm["error"]["model"]["x"]),
+                "state_measurement_relation": 1.0,
+                "measurement_standard_deviation": float(math.sqrt(algorithm["error"]["measurement"]["x"])),
+                "measurement_prediction": 0.0,
+                "residual_threshold": float(algorithm["threshold"]["residual"]["x"]),
+                "residual_weight": 0.0,
+                "residual_measurement": 0.0,
+                "residual_measurement_dash": 0.0,
+                "gamma": float(algorithm["threshold"]["gamma"]["x"]),
+                "state_error_variance_prediction": 0.0,
+                "state_error_variance": algorithm["error"]["state_error_variance"]["x"],
+                "state_estimation": 0.0,
+                "delta_state_estimate": 0.0,
+                "gain": 0.0,
+                "adaptive_factor": 0.0,
+                "adaptive_threshold": float(algorithm["threshold"]["adaptive"]["x"]),
+                "estimator_parameter_count": int(algorithm["estimator"]["parameter"]["count"]),
+                "measurement_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "residual_weight_buffer": np.ones(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "position_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "velocity_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "acceleration_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist()
+            }
+            default_state_information_y = {
+                "time_previous": -1.0,
+                "model_type": algorithm["model"]["type"],
+                "state_model_prediction": 0.0,
+                "state_model": float(self.pos['y']),
+                "system_model": float(algorithm["model"]["coefficient"]["y"]),
+                "system_model_error": float(algorithm["error"]["model"]["y"]),
+                "state_measurement_relation": 1.0,
+                "measurement_standard_deviation": float(math.sqrt(algorithm["error"]["measurement"]["y"])),
+                "measurement_prediction": 0.0,
+                "residual_threshold": float(algorithm["threshold"]["residual"]["y"]),
+                "residual_weight": 0.0,
+                "residual_measurement": 0.0,
+                "residual_measurement_dash": 0.0,
+                "gamma": float(algorithm["threshold"]["gamma"]["y"]),
+                "state_error_variance_prediction": 0.0,
+                "state_error_variance": algorithm["error"]["state_error_variance"]["y"],
+                "state_estimation": 0.0,
+                "delta_state_estimate": 0.0,
+                "gain": 0.0,
+                "adaptive_factor": 0.0,
+                "adaptive_threshold": float(algorithm["threshold"]["adaptive"]["y"]),
+                "estimator_parameter_count": int(algorithm["estimator"]["parameter"]["count"]),
+                "measurement_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "residual_weight_buffer": np.ones(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "position_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "velocity_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "acceleration_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist()
+            }
+            default_state_information_z = {
+                "time_previous": -1.0,
+                "model_type": algorithm["model"]["type"],
+                "state_model_prediction": 0.0,
+                "state_model": float(self.pos['z']),
+                "system_model": float(algorithm["model"]["coefficient"]["z"]),
+                "system_model_error": float(algorithm["error"]["model"]["z"]),
+                "state_measurement_relation": 1.0,
+                "measurement_standard_deviation": float(math.sqrt(algorithm["error"]["measurement"]["z"])),
+                "measurement_prediction": 0.0,
+                "residual_threshold": float(algorithm["threshold"]["residual"]["z"]),
+                "residual_weight": 0.0,
+                "residual_measurement": 0.0,
+                "residual_measurement_dash": 0.0,
+                "gamma": float(algorithm["threshold"]["gamma"]["z"]),
+                "state_error_variance_prediction": 0.0,
+                "state_error_variance": algorithm["error"]["state_error_variance"]["z"],
+                "state_estimation": 0.0,
+                "delta_state_estimate": 0.0,
+                "gain": 0.0,
+                "adaptive_factor": 0.0,
+                "adaptive_threshold": float(algorithm["threshold"]["adaptive"]["z"]),
+                "estimator_parameter_count": int(algorithm["estimator"]["parameter"]["count"]),
+                "measurement_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "residual_weight_buffer": np.ones(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "position_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "velocity_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist(),
+                "acceleration_buffer": np.zeros(algorithm["estimator"]["parameter"]["count"]).tolist()
+            }
+            state_information = {
+                "x": default_state_information_x,
+                "y": default_state_information_y,
+                "z": default_state_information_z
+            }
+            name = "personnel_" + self.walker_id
+            json_state_information = json.dumps(state_information)
+            db.set(key=name, value=json_state_information)
+
         except Exception as e:
             logger.critical("unhandled exception", e)
             sys.exit(-1)
 
-    def _consume_telemetry_msg(self, **kwargs):
+    async def robot_msg_handler(self, exchange_name, binding_name, message_body):
+        # extract robot id from binding name
+        binding_delimited_array = binding_name.split(".")
+        robot_id = binding_delimited_array[len(binding_delimited_array) - 1]
+        msg_attributes = message_body.keys()
+
+        # check for must fields in the message attributes
+        if ("id" in msg_attributes) and ("base" in msg_attributes) \
+                and ("shoulder" in msg_attributes) and ("elbow" in msg_attributes):
+
+            # check if robot id matches with 'id' field in the message
+            if robot_id == message_body["id"]:
+                logger.debug(f'Sub: exchange: {exchange_name} msg {message_body}')
+
+                # extract information from message body
+                base_shoulder = [message_body["base"], message_body["shoulder"]]
+                shoulder_elbow = [message_body["shoulder"], message_body["elbow"]]
+                elbow_wrist = [message_body["elbow"], message_body["wrist"]]
+                prefix = "robot_" + message_body["id"]
+
+                # update robot in scene for collision detection
+                self.collision.update_scene(obstacle_id=prefix + "_base_shoulder",
+                                            points=base_shoulder,
+                                            shape="line")
+                self.collision.update_scene(obstacle_id=prefix + "_shoulder_elbow",
+                                            points=shoulder_elbow,
+                                            shape="line")
+                self.collision.update_scene(obstacle_id=prefix + "_elbow_wrist",
+                                            points=elbow_wrist,
+                                            shape="line")
+
+    async def _consume_telemetry_msg(self, **kwargs):
         """
         consume telemetry messages
         :param kwargs: must contain following information
@@ -163,39 +291,17 @@ class WalkPatternGenerator:
         # check for matching subscriber with exchange and binding name in all subscribers
         for subscriber in self.subscribers:
             if subscriber.exchange_name == exchange_name:
-                if "visual.generator.robot" in binding_name:
-                    # extract robot id from binding name
-                    binding_delimited_array = binding_name.split(".")
-                    robot_id = binding_delimited_array[len(binding_delimited_array) - 1]
-                    msg_attributes = message_body.keys()
+                cb_str = subscriber.get_binding_key_handler(binding_name=binding_name)
+                if cb_str is not None:
+                    try:
+                        cb = getattr(self, cb_str)
+                    except:
+                        logging.critical(f'No Matching handler found for {cb_str}')
+                        continue
+                    if cb is not None:
+                        await cb(exchange_name=exchange_name, binding_name=binding_name, message_body=message_body)
 
-                    # check for must fields in the message attributes
-                    if ("id" in msg_attributes) and ("base" in msg_attributes) \
-                            and ("shoulder" in msg_attributes) and ("elbow" in msg_attributes):
-
-                        # check if robot id matches with 'id' field in the message
-                        if robot_id == message_body["id"]:
-                            logger.debug(f'Sub: exchange: {exchange_name} msg {message_body}')
-
-                            # extract information from message body
-                            base_shoulder = [message_body["base"], message_body["shoulder"]]
-                            shoulder_elbow = [message_body["shoulder"], message_body["elbow"]]
-                            elbow_wrist = [message_body["elbow"], message_body["wrist"]]
-                            prefix = "robot_" + message_body["id"]
-
-                            # update robot in scene for collision detection
-                            self.collision.update_scene(obstacle_id=prefix + "_base_shoulder",
-                                                        points=base_shoulder,
-                                                        shape="line")
-                            self.collision.update_scene(obstacle_id=prefix + "_shoulder_elbow",
-                                                        points=shoulder_elbow,
-                                                        shape="line")
-                            self.collision.update_scene(obstacle_id=prefix + "_elbow_wrist",
-                                                        points=elbow_wrist,
-                                                        shape="line")
-                            return
-
-    async def _update3d(self, tdelta=-1):
+    async def move(self, tdelta=-1):
         """
         update walker position in 3D
         :param tdelta: time duration between successive updates
@@ -315,7 +421,7 @@ class WalkPatternGenerator:
             logger.critical("unhandled exception", e)
             sys.exit(-1)
 
-    async def publish(self, exchange_name, msg, external_binding_suffix=None):
+    async def publish(self, exchange_name, msg):
         '''
         publishes amqp message
         :param exchange_name: name of amqp exchange
@@ -325,8 +431,8 @@ class WalkPatternGenerator:
         '''
         for publisher in self.publishers:
             if exchange_name == publisher.exchange_name:
-                await publisher.publish(message_content=msg, external_binding_suffix=external_binding_suffix)
-                logger.debug(f'Pub: exchange: {exchange_name} msg {msg}')
+                await publisher.publish(message_content=msg)
+                logger.debug(f'pub: exchange:{exchange_name}, binding key: {publisher.queue_name}, msg:{msg}')
 
     async def connect(self):
         """
@@ -346,25 +452,20 @@ class WalkPatternGenerator:
         :param binding_key: binding key name (optional) used when other than default binding key
         :return:
         """
-
         result = dict()
-        if self.interval >= 0:
-            all_result, plm_result = await self._update3d()
-            result.update(all_result)
+        # move the personnel
+        all_result, plm_result = await self.move()
+        result.update(all_result)
 
-        await self.publish(exchange_name='generator_personnel', msg=json.dumps(result).encode())
-
-        # sleep until its time for next sample
-        if self.interval >= 0:
-            await asyncio.sleep(delay=self.interval)
-        else:
-            await asyncio.sleep(delay=0)
+        # Transmit data only if there is an Data aggregator ID i.e. within radio range
+        if result["data_aggregator_id"] is not None:
+            await self.publish(exchange_name='generator_personnel', msg=json.dumps(result).encode())
 
     def get_states(self):
         return {"x_ref_pos": self.pos['x'], "y_ref_pos ": self.pos['y'], "z_ref_pos": self.pos['z']}
 
     def get_area_information(self, ref):
         for data_aggregator in self.data_aggregators:
-            if data_aggregator.locate(point=[ref[0], ref[1]]):
+            if data_aggregator.is_in_radio_range(point=[ref[0], ref[1]]):
                 return data_aggregator.id
         return None
