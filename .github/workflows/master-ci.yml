@@ -19,9 +19,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-
-      - name: Install libgeos for Shapely
-        run: sudo apt-get install libgeos-3.8.0 libgeos-c1v5 libgeos-dev
   
       - name: Prepare
         id: prep
