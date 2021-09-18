@@ -1,6 +1,6 @@
 FROM python:3.8.3-slim-buster AS base
 
-RUN apt update && apt install libgeos-dev
+RUN apt update && apt-get install -y libgeos-dev
 
 # Dedicated Workdir for App
 WORKDIR /pywalkgen
