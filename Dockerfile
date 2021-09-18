@@ -1,5 +1,7 @@
 FROM python:3.8.3-slim-buster AS base
 
+RUN sudo apt install libgeos-dev
+
 # Dedicated Workdir for App
 WORKDIR /pywalkgen
 
