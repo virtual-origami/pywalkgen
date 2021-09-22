@@ -300,6 +300,8 @@ preset:
     credentials: &amq_credential
       username: "admin"
       password: "rabbit"
+  health_server_info: &health_server_info
+    port: "9012"
   redis: &redis_connect_info
     server:
       address: "redis"
@@ -429,6 +431,7 @@ preset:
 walk_generator:
   version: "0.1"
   in_mem_db: *redis_connect_info
+  health_server: *health_server_info
   sample_interval: 0.5
   personnels:
     - id: '1'
