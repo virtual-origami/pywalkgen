@@ -56,7 +56,8 @@ async def app(eventloop, config):
 
         # health server
         health_server = HealthServer(config=walk_config["health_server"],event_loop=eventloop)
-
+	eventloop.create_task(health_server.server_loop())
+	
         try:
             redis_db = RedisDB(host=walk_config["in_mem_db"]["server"]["address"],
                                     port=walk_config["in_mem_db"]["server"]["port"],
@@ -89,7 +90,6 @@ async def app(eventloop, config):
             for each_walker in walkers_in_map:
                 await each_walker.update()
 
-            await health_server.server_loop()
             
             if sample_interval >= 0:
                 await asyncio.sleep(delay=sample_interval)
