@@ -55,13 +55,13 @@ async def app(eventloop, config):
         logger.debug("Personnel Generator Version: %s", walk_config['version'])
 
         # health server
-        health_server = HealthServer(config=walk_config["health_server"],event_loop=eventloop)
-	eventloop.create_task(health_server.server_loop())
-	
+        health_server = HealthServer(config=walk_config["health_server"], event_loop=eventloop)
+        eventloop.create_task(health_server.server_loop())
+
         try:
             redis_db = RedisDB(host=walk_config["in_mem_db"]["server"]["address"],
-                                    port=walk_config["in_mem_db"]["server"]["port"],
-                                    password=walk_config["in_mem_db"]["credentials"]["password"])
+                               port=walk_config["in_mem_db"]["server"]["port"],
+                               password=walk_config["in_mem_db"]["credentials"]["password"])
         except Exception as e:
             logger.error(f'Error while setting-up or connecting Redis Client : {e}')
             break
@@ -90,7 +90,6 @@ async def app(eventloop, config):
             for each_walker in walkers_in_map:
                 await each_walker.update()
 
-            
             if sample_interval >= 0:
                 await asyncio.sleep(delay=sample_interval)
             else:
@@ -125,6 +124,3 @@ def app_main():
     event_loop = asyncio.get_event_loop()
     event_loop.add_signal_handler(signal.SIGHUP, functools.partial(signal_handler, name='SIGHUP'))
     event_loop.run_until_complete(app(event_loop, args.config))
-
-
-
