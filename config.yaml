@@ -313,14 +313,14 @@ preset:
         type: "amq"
         broker: *amq_connect_info
         credential: *amq_credential
-        exchange: ""
+        exchange: "generator_personnel"
         queue: "generator_personnel_rk"
         handler:
     - pub_sub_2: &sub_visual
         type: "amq"
         broker: *amq_connect_info
         credential: *amq_credential
-        exchange: ""
+        exchange: "visual_generator_robot"
         queue: "visual_generator_robot_rk"
         handler: "robot_msg_handler"
   protocols:
