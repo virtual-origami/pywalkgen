@@ -307,7 +307,7 @@ preset:
       address: 'redis'
       port: 6379
     credentials:
-      password: ${REDIS_PASSWORD}
+      password: 'rabbit'
   pub_sub:
     - pub_sub_1: &pub_generator_personnel
         type: "amq"
