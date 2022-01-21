@@ -70,8 +70,8 @@ async def app(eventloop, config):
         logger.debug("Personnel Generator Version: %s", walk_config['version'])
 
         # health server
-        health_server = HealthServer(config=walk_config["health_server"], event_loop=eventloop)
-        eventloop.create_task(health_server.server_loop())
+        # health_server = HealthServer(config=walk_config["health_server"], event_loop=eventloop)
+        # eventloop.create_task(health_server.server_loop())
 
         try:
             redis_db = RedisDB(host=walk_config["in_mem_db"]["server"]["address"],
